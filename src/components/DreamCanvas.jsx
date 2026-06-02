@@ -90,7 +90,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     
     if (currentScene === 1 || currentScene === 2) {
       // Starry sky background stars with Z-depth (Idea 4 Bokeh)
-      for (let i = 0; i < 85; i++) {
+      for (let i = 0; i < 55; i++) {
         const depth = Math.random(); // 0 (far, sharp) to 1 (close, bokeh)
         particlesRef.current.push({
           x: Math.random() * w,
@@ -105,12 +105,12 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     } else if (currentScene === 3) {
       // Initialize floating 3D rose petals
       petalsRef.current = [];
-      for (let i = 0; i < 22; i++) {
+      for (let i = 0; i < 14; i++) {
         petalsRef.current.push(create3DPetal(Math.random() * w, Math.random() * h, false));
       }
     } else if (currentScene === 5) {
       // Warm room lights (large soft drifting bokeh circles - Idea 4)
-      for (let i = 0; i < 18; i++) {
+      for (let i = 0; i < 10; i++) {
         const depth = Math.random(); // 0 to 1
         particlesRef.current.push({
           x: Math.random() * w,
@@ -127,7 +127,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
       }
     } else if (currentScene === 6 || currentScene === 7) {
       // Slow champagne dust
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 22; i++) {
         const depth = Math.random();
         particlesRef.current.push({
           x: Math.random() * w,

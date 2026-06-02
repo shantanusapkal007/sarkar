@@ -78,14 +78,15 @@
     var(--backdrop-photo);
   background-size: cover;
   background-position: center;
-  filter: blur(18px) saturate(0.9);
-  opacity: 0.34;
-  transform: scale(1.08);
+  filter: blur(8px) saturate(0.9);
+  opacity: 0.32;
+  transform: scale(1.06);
+  will-change: transform, filter;
 }
 
 .scene-6 .scene-photo-bg {
-  opacity: 0.28;
-  filter: blur(22px) saturate(0.72);
+  opacity: 0.26;
+  filter: blur(10px) saturate(0.72);
 }
 
 .aurora {
@@ -379,6 +380,10 @@ figure {
   cursor: pointer;
   text-align: left;
   overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
 .memory-card span {

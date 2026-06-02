@@ -512,7 +512,7 @@ function App() {
                       transition={{ delay: index * 0.08, type: 'spring', damping: 18 }}
                     >
                       <span>{String(index + 1).padStart(2, '0')}</span>
-                      <div>{renderImage(memory.src, memory.title)}</div>
+                      <div>{renderImage(memory.src, memory.title, memory.title === 'The Sunlit Frame' ? 'contain-img' : '')}</div>
                       <strong>{memory.title}</strong>
                     </motion.button>
                   ))}
@@ -623,7 +623,7 @@ function App() {
                       }}
                     >
                       <div className="dream-frame" style={{ width: '100%', height: '62%' }}>
-                        {renderImage(PHOTOS.sunlight, 'Prism Face 1')}
+                        {renderImage(PHOTOS.tender, 'Prism Face 1')}
                       </div>
                       <div className="prism-poetry-container" style={{ padding: '6px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
                         <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.8rem', color: 'var(--champagne-gold)', fontStyle: 'italic', lineHeight: '1.3' }}>
