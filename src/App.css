@@ -46,9 +46,7 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
+  overflow: hidden;
   isolation: isolate;
   background:
     radial-gradient(circle at 18% 18%, rgba(255, 204, 132, 0.18), transparent 28%),
@@ -696,7 +694,7 @@ figure {
 }
 
 .canvas-container {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
