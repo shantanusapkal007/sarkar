@@ -65,7 +65,7 @@ const chapters = [
     title: 'Make one wish. I will make the rest into a prayer.',
     copy:
       'May this year protect your heart, multiply your joy, surprise you gently, and return to you every ounce of love you give so freely.',
-    cta: 'Reveal the birthday star',
+    cta: 'Seal the wish with love',
     backdrop: PHOTOS.close,
   },
 ];
