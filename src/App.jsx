@@ -437,6 +437,18 @@ function App() {
               >
                 {chapter.copy}
               </motion.p>
+
+              {scene === 1 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.65 }}
+                  className="dedication-line"
+                >
+                  <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.36)' }}>dedicated to</span>
+                  <span className="romantic-name">Rajkunwar</span>
+                </motion.div>
+              )}
             </div>
 
             <div className="art-column">
@@ -476,7 +488,7 @@ function App() {
                   </motion.figure>
                   <div className="birthday-plaque">
                     <Gift size={18} />
-                    <span>Happy Birthday</span>
+                    <span>Happy Birthday, Rajkunwar</span>
                   </div>
                 </motion.div>
               )}
@@ -735,8 +747,11 @@ function App() {
               </div>
 
               <div className="final-copy">
-                <p className="eyebrow">For your birthday</p>
-                <h1>Happy Birthday, My Love</h1>
+                <p className="eyebrow">For Rajkunwar</p>
+                <h1 style={{ display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: '1.1' }}>
+                  <span style={{ fontSize: '0.55em', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a3145', fontFamily: 'var(--font-sans)', fontWeight: '700' }}>Happy Birthday</span>
+                  <span className="romantic-name" style={{ fontSize: '1.25em', alignSelf: 'flex-start' }}>Rajkunwar</span>
+                </h1>
                 <p>
                   I hope this year meets you with the same tenderness you give the world.
                   May it bring you mornings that feel peaceful, evenings that feel safe,
@@ -747,9 +762,10 @@ function App() {
                   storms, and the reason ordinary moments turn into something worth
                   saving.
                 </p>
-                <p className="signature">
-                  Today, I celebrate you fully: your heart, your courage, your beauty,
-                  and the gentle magic only you carry.
+                <p className="signature" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <span>Today, I celebrate you fully: your heart, your courage, your beauty,</span>
+                  <span>and the gentle magic only you carry.</span>
+                  <span className="romantic-name" style={{ fontSize: '2.5rem', marginTop: '14px', alignSelf: 'flex-start' }}>Rajkunwar</span>
                 </p>
               </div>
             </motion.div>
