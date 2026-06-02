@@ -1,5 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import { useEffect, useRef } from 'react';
 
 export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
   const canvasRef = useRef(null);
@@ -13,6 +12,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
   useEffect(() => {
     sceneRef.current = scene;
     initSceneParticles(scene);
+    // The particle initializer reads refs and should not restart this effect on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
   // Handle Scene 5 Climax star explosion
@@ -42,7 +43,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
   }, [userTouch]);
 
   // Particle Initializers
-  const initSceneParticles = (currentScene) => {
+  function initSceneParticles(currentScene) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const w = canvas.width;
@@ -97,10 +98,10 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         });
       }
     }
-  };
+  }
 
   // Math-based 3D Rose Petal Generator (pitch, roll, yaw projections)
-  const create3DPetal = (x, y, isTouch = false) => {
+  function create3DPetal(x, y, isTouch = false) {
     return {
       x,
       y,
@@ -123,9 +124,9 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
       // Luxury color tones (burgundy, soft champagne, rose pink)
       color: Math.random() > 0.6 ? '#fecdd3' : (Math.random() > 0.5 ? '#fda4af' : '#ffe4e6')
     };
-  };
+  }
 
-  const createRipple = (x, y) => {
+  function createRipple(x, y) {
     return {
       x,
       y,
@@ -136,9 +137,9 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
       life: 1.0,
       decay: Math.random() * 0.01 + 0.008
     };
-  };
+  }
 
-  const spawnExplosion = () => {
+  function spawnExplosion() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const w = canvas.width;
@@ -168,7 +169,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         color: Math.random() > 0.4 ? `rgba(252, 211, 77, ${Math.random() * 0.7 + 0.3})` : `rgba(251, 113, 133, ${Math.random() * 0.6 + 0.3})` // gold or rose
       });
     }
-  };
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -260,7 +261,6 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.rotate(p.yaw);
           
           // Volumetric shading: darken color based on Y tilt (pitch)
-          const shadeRatio = Math.max(0.6, Math.abs(Math.sin(p.pitch)));
           ctx.globalAlpha = p.alpha;
           
           // Draw detailed luxury petal path
@@ -401,6 +401,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', resizeCanvas);
     };
+    // The render loop owns resize and particle initialization for the lifetime of the canvas.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

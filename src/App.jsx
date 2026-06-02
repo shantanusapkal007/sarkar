@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Gift, Heart, Sparkles, Star } from 'lucide-react';
 import gsap from 'gsap';
@@ -8,66 +8,110 @@ import { DreamCanvas } from './components/DreamCanvas';
 import { MuteToggle } from './components/MuteToggle';
 import { audioEngine } from './utils/audioEngine';
 
-const PUBLIC_PHOTOS = [
-  '/photo_2026-06-02_14-25-51.jpg',
-  '/photo_2026-06-02_14-25-54.jpg',
-  '/photo_2026-06-02_14-25-59.jpg',
-  '/photo_2026-06-02_14-26-02.jpg',
-  '/photo_2026-06-02_14-26-06.jpg',
-  '/photo_2026-06-02_14-26-10.jpg',
+const PHOTOS = {
+  tender: '/photo_2026-06-02_15-23-01.jpg',
+  birthday: '/photo_2026-06-02_15-23-03.jpg',
+  garden: '/photo_2026-06-02_15-23-07.jpg',
+  sunlight: '/photo_2026-06-02_15-23-08.jpg',
+  mirror: '/photo_2026-06-02_15-23-11.jpg',
+  mirrorEcho: '/photo_2026-06-02_15-23-16.jpg',
+  close: '/photo_2026-06-02_15-23-19.jpg',
+};
+
+const PHOTO_LIST = [
+  PHOTOS.birthday,
+  PHOTOS.garden,
+  PHOTOS.tender,
+  PHOTOS.sunlight,
+  PHOTOS.mirror,
+  PHOTOS.close,
+  PHOTOS.mirrorEcho,
 ];
 
 const chapters = [
   {
-    eyebrow: '01 / Arrival',
-    title: 'The night learned your name.',
+    eyebrow: '01 / The Birthday Overture',
+    title: 'Tonight, the world has one beautiful reason to glow.',
     copy:
-      'Some people arrive like noise. You arrived like light, slow and impossible to ignore.',
-    cta: 'Open the first light',
+      'This is not just a wish. It is a small gallery of every light you bring: softness, laughter, courage, and the kind of presence that makes ordinary days feel chosen.',
+    cta: 'Begin the wish',
+    backdrop: PHOTOS.birthday,
   },
   {
-    eyebrow: '02 / Memory Gallery',
-    title: 'Every small moment became a constellation.',
+    eyebrow: '02 / Memory Constellation',
+    title: 'Every photograph keeps a little piece of forever.',
     copy:
-      'The smiles, the silences, the unfinished stories, the ordinary days that quietly became precious.',
-    cta: 'Walk through the gallery',
+      'Tap each frame. Some memories are grand, some are quiet, but all of them say the same thing: you made the story warmer by being in it.',
+    cta: 'Enter the blooming garden',
+    backdrop: PHOTOS.garden,
   },
   {
-    eyebrow: '03 / Garden',
-    title: 'Wherever you are loved, something blooms.',
+    eyebrow: '03 / The Blooming Garden',
+    title: 'Wherever your smile lands, something starts to bloom.',
     copy:
-      'Touch the garden and let the page answer in petals, gold dust, and little echoes of joy.',
-    cta: 'Enter the letter',
+      'A birthday should feel alive. Touch the garden and let the page answer you with petals, golden sparks, and words that float like tiny blessings.',
+    cta: 'Take me to the wish',
+    backdrop: PHOTOS.sunlight,
   },
   {
-    eyebrow: '04 / Wish',
-    title: 'Today belongs to you.',
+    eyebrow: '04 / The Birthday Star',
+    title: 'Make one wish. I will make the rest into a prayer.',
     copy:
-      'May this birthday bring you softness where you need rest, courage where you need fire, and happiness that stays.',
+      'May this year protect your heart, multiply your joy, surprise you gently, and return to you every ounce of love you give so freely.',
     cta: 'Reveal the birthday star',
+    backdrop: PHOTOS.close,
   },
 ];
 
 const memories = [
   {
-    title: 'Your Glow',
-    note: 'The kind of brightness that makes even a quiet day feel dressed for celebration.',
-    src: PUBLIC_PHOTOS[0],
+    title: 'The Birthday Light',
+    label: 'Cake, wishes, glow',
+    note:
+      'You, holding celebration like it belongs naturally in your hands. A whole birthday room made brighter because you were in it.',
+    src: PHOTOS.birthday,
   },
   {
-    title: 'Your Grace',
-    note: 'A calm strength, a beautiful heart, and the rare magic of making people feel seen.',
-    src: PUBLIC_PHOTOS[1],
+    title: 'The Green Day',
+    label: 'Sun, palms, us',
+    note:
+      'A day with air, color, and that easy kind of happiness that does not need to explain itself.',
+    src: PHOTOS.garden,
   },
   {
-    title: 'Your Laugh',
-    note: 'A little universe opening. Warm, honest, unforgettable.',
-    src: PUBLIC_PHOTOS[2],
+    title: 'The Quiet Smile',
+    label: 'Softest second',
+    note:
+      'A candid little moment, almost shy, but full of the sweetness that makes memory stay.',
+    src: PHOTOS.tender,
   },
   {
-    title: 'Your Journey',
-    note: 'Every year adds another layer to the art you already are.',
-    src: PUBLIC_PHOTOS[3],
+    title: 'The Sunlit Frame',
+    label: 'Bright and fearless',
+    note:
+      'You smiling under the daylight, carrying warmth so naturally the whole picture feels alive.',
+    src: PHOTOS.sunlight,
+  },
+  {
+    title: 'The Secret Mirror',
+    label: 'Close, playful, ours',
+    note:
+      'The kind of photo that feels like a private laugh saved inside glass.',
+    src: PHOTOS.mirror,
+  },
+  {
+    title: 'The Wind-Kissed One',
+    label: 'Effortless beauty',
+    note:
+      'A bright little portrait of confidence, softness, and the beautiful chaos of real life.',
+    src: PHOTOS.close,
+  },
+  {
+    title: 'The Echo',
+    label: 'Again, because it matters',
+    note:
+      'Some moments deserve to appear twice, like a favorite line in a song.',
+    src: PHOTOS.mirrorEcho,
   },
 ];
 
@@ -82,21 +126,22 @@ function App() {
   const artworkRef = useRef(null);
 
   const chapter = chapters[Math.max(0, scene - 1)] || chapters[chapters.length - 1];
+  const backdrop = scene < 5 ? chapter.backdrop : PHOTOS.birthday;
 
   const floatingWords = useMemo(
-    () => ['kindness', 'light', 'laughter', 'courage', 'home', 'grace'],
+    () => ['softness', 'light', 'laughter', 'courage', 'home', 'grace', 'forever'],
     []
   );
 
   const beginExperience = () => {
     audioEngine.init();
     setAudioActive(true);
-    audioEngine.playChime(4);
+    audioEngine.playChime(5);
     setScene(2);
   };
 
   const advance = () => {
-    audioEngine.playChime(scene + 2);
+    audioEngine.playChime(scene + 3);
     setScene((current) => Math.min(current + 1, 5));
   };
 
@@ -108,13 +153,13 @@ function App() {
     const clientY = event.touches?.[0]?.clientY ?? event.clientY;
     const x = clientX - rect.left;
     const y = clientY - rect.top;
-    const rotateY = ((x / rect.width) - 0.5) * 18;
-    const rotateX = -((y / rect.height) - 0.5) * 18;
+    const rotateY = ((x / rect.width) - 0.5) * 20;
+    const rotateX = -((y / rect.height) - 0.5) * 20;
 
     gsap.to(artworkRef.current, {
       rotateX,
       rotateY,
-      transformPerspective: 900,
+      transformPerspective: 1000,
       duration: 0.5,
       ease: 'power2.out',
     });
@@ -125,7 +170,7 @@ function App() {
     gsap.to(artworkRef.current, {
       rotateX: 0,
       rotateY: 0,
-      duration: 0.8,
+      duration: 0.85,
       ease: 'power3.out',
     });
   };
@@ -140,13 +185,13 @@ function App() {
       id: `${Date.now()}-${Math.random()}`,
       x: clientX - rect.left,
       y: clientY - rect.top,
-      size: Math.floor(Math.random() * 48) + 42,
-      delay: Math.random() * 0.2,
+      size: Math.floor(Math.random() * 54) + 46,
+      delay: Math.random() * 0.16,
     };
 
     setUserTouch({ x: clientX, y: clientY, time: Date.now() });
-    setGardenMarks((items) => [...items.slice(-14), mark]);
-    audioEngine.playChime(Math.floor(Math.random() * 7));
+    setGardenMarks((items) => [...items.slice(-18), mark]);
+    audioEngine.playChime(Math.floor(Math.random() * 8));
   };
 
   const revealFinale = () => {
@@ -156,8 +201,9 @@ function App() {
 
     setTimeout(() => {
       setScene(5);
+      setTriggerExplosion(false);
       audioEngine.fadeToSilence();
-    }, 5200);
+    }, 5400);
   };
 
   const renderImage = (src, alt, className = '') => {
@@ -176,12 +222,16 @@ function App() {
   };
 
   return (
-    <main className={`birthday-site scene-${scene}`}>
+    <main
+      className={`birthday-site scene-${scene}`}
+      style={{ '--backdrop-photo': `url(${backdrop})` }}
+    >
+      <div className="scene-photo-bg" />
       <div className="aurora aurora-one" />
       <div className="aurora aurora-two" />
       <div className="paper-grain" />
 
-      <DreamCanvas scene={scene} triggerExplosion={triggerExplosion} userTouch={userTouch} />
+      <DreamCanvas scene={triggerExplosion ? 6 : scene} triggerExplosion={triggerExplosion} userTouch={userTouch} />
       <MuteToggle audioActive={audioActive} />
 
       <AnimatePresence>
@@ -195,19 +245,19 @@ function App() {
           >
             <motion.article
               className="memory-polaroid"
-              initial={{ y: 44, rotate: -4, scale: 0.9 }}
+              initial={{ y: 46, rotate: -4, scale: 0.88 }}
               animate={{ y: 0, rotate: 0, scale: 1 }}
-              exit={{ y: 36, rotate: 4, scale: 0.92 }}
+              exit={{ y: 38, rotate: 4, scale: 0.92 }}
               transition={{ type: 'spring', damping: 22, stiffness: 120 }}
               onClick={(event) => event.stopPropagation()}
             >
               <div className="memory-photo">
                 {renderImage(activeMemory.src, activeMemory.title)}
               </div>
-              <p className="memory-kicker">A framed little universe</p>
+              <p className="memory-kicker">{activeMemory.label}</p>
               <h2>{activeMemory.title}</h2>
               <p>{activeMemory.note}</p>
-              <button onClick={() => setActiveMemory(null)}>Return</button>
+              <button onClick={() => setActiveMemory(null)}>Return to the gallery</button>
             </motion.article>
           </motion.div>
         )}
@@ -228,14 +278,14 @@ function App() {
                 className="eyebrow"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.18 }}
               >
                 {chapter.eyebrow}
               </motion.p>
               <motion.h1
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 }}
+                transition={{ delay: 0.32 }}
               >
                 {chapter.title}
               </motion.h1>
@@ -243,10 +293,25 @@ function App() {
                 className="chapter-copy"
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+                transition={{ delay: 0.48 }}
               >
                 {chapter.copy}
               </motion.p>
+
+              <motion.div
+                className="scene-meter"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.58 }}
+              >
+                {chapters.map((item, index) => (
+                  <span
+                    key={item.eyebrow}
+                    className={index + 1 <= scene ? 'is-lit' : ''}
+                    aria-label={`Scene ${index + 1}`}
+                  />
+                ))}
+              </motion.div>
 
               {scene === 1 ? (
                 <motion.button
@@ -255,9 +320,9 @@ function App() {
                   whileTap={{ scale: 0.96 }}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
+                  transition={{ delay: 0.72 }}
                 >
-                  Begin the wish
+                  {chapter.cta}
                   <ArrowRight size={18} />
                 </motion.button>
               ) : scene === 4 ? (
@@ -267,7 +332,7 @@ function App() {
                   whileTap={{ scale: 0.96 }}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
+                  transition={{ delay: 0.72 }}
                 >
                   {chapter.cta}
                   <Star size={18} />
@@ -279,7 +344,7 @@ function App() {
                   whileTap={{ scale: 0.96 }}
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
+                  transition={{ delay: 0.72 }}
                 >
                   {chapter.cta}
                   <ArrowRight size={18} />
@@ -291,17 +356,37 @@ function App() {
               {scene === 1 && (
                 <motion.div
                   ref={artworkRef}
-                  className="hero-artwork"
+                  className="hero-photo-theatre"
                   onMouseMove={handleArtworkMove}
                   onMouseLeave={resetArtwork}
                   onTouchMove={handleArtworkMove}
                   onTouchEnd={resetArtwork}
-                  initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+                  initial={{ opacity: 0, scale: 0.92, rotate: -2 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.35, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ delay: 0.25, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <div className="halo-ring" />
-                  <img src={heroArt} alt="Floating birthday artwork" />
+                  <motion.figure
+                    className="hero-main-photo"
+                    animate={{ y: [0, -12, 0] }}
+                    transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
+                  >
+                    {renderImage(PHOTOS.birthday, 'Birthday celebration portrait')}
+                  </motion.figure>
+                  <motion.figure
+                    className="hero-float-photo float-a"
+                    animate={{ y: [0, 18, 0], rotate: [-8, -4, -8] }}
+                    transition={{ repeat: Infinity, duration: 7, ease: 'easeInOut' }}
+                  >
+                    {renderImage(PHOTOS.tender, 'Candid traditional moment')}
+                  </motion.figure>
+                  <motion.figure
+                    className="hero-float-photo float-b"
+                    animate={{ y: [0, -16, 0], rotate: [8, 4, 8] }}
+                    transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
+                  >
+                    {renderImage(PHOTOS.close, 'Close sunny portrait')}
+                  </motion.figure>
                   <div className="birthday-plaque">
                     <Gift size={18} />
                     <span>Happy Birthday</span>
@@ -310,17 +395,19 @@ function App() {
               )}
 
               {scene === 2 && (
-                <div className="memory-grid">
+                <div className="memory-wall">
                   {memories.map((memory, index) => (
                     <motion.button
-                      key={memory.title}
-                      className="memory-card"
+                      key={`${memory.title}-${memory.src}`}
+                      className={`memory-card card-${index}`}
                       onClick={() => {
+                        audioEngine.playChime(index + 1);
                         setActiveMemory(memory);
                       }}
-                      initial={{ opacity: 0, y: 24, rotate: index % 2 ? 2 : -2 }}
-                      animate={{ opacity: 1, y: 0, rotate: index % 2 ? 1.5 : -1.5 }}
-                      transition={{ delay: index * 0.12 }}
+                      initial={{ opacity: 0, y: 30, rotate: index % 2 ? 2.5 : -2.5 }}
+                      animate={{ opacity: 1, y: 0, rotate: index % 2 ? 1.2 : -1.2 }}
+                      whileHover={{ y: -8, rotate: 0, scale: 1.025 }}
+                      transition={{ delay: index * 0.08, type: 'spring', damping: 18 }}
                     >
                       <span>{String(index + 1).padStart(2, '0')}</span>
                       <div>{renderImage(memory.src, memory.title)}</div>
@@ -331,7 +418,13 @@ function App() {
               )}
 
               {scene === 3 && (
-                <div className="garden-panel" onMouseDown={handleGardenTouch} onTouchStart={handleGardenTouch}>
+                <div
+                  className="garden-panel"
+                  onMouseDown={handleGardenTouch}
+                  onTouchStart={handleGardenTouch}
+                  style={{ '--garden-photo': `url(${PHOTOS.garden})` }}
+                >
+                  <div className="garden-backdrop" />
                   {gardenMarks.map((mark) => (
                     <motion.span
                       key={mark.id}
@@ -343,22 +436,33 @@ function App() {
                         height: mark.size,
                       }}
                       initial={{ scale: 0, opacity: 0, rotate: -35 }}
-                      animate={{ scale: [0, 1.1, 0.9], opacity: [0, 1, 0], rotate: 35 }}
-                      transition={{ duration: 2.4, delay: mark.delay, ease: 'easeOut' }}
+                      animate={{ scale: [0, 1.15, 0.9], opacity: [0, 1, 0], rotate: 35 }}
+                      transition={{ duration: 2.5, delay: mark.delay, ease: 'easeOut' }}
                     />
                   ))}
                   {floatingWords.map((word, index) => (
                     <motion.span
                       key={word}
                       className={`floating-word word-${index}`}
-                      animate={{ y: [0, -20, 0], opacity: [0.45, 0.9, 0.45] }}
-                      transition={{ repeat: Infinity, duration: 4 + index * 0.5, ease: 'easeInOut' }}
+                      animate={{ y: [0, -22, 0], opacity: [0.45, 0.92, 0.45] }}
+                      transition={{ repeat: Infinity, duration: 4 + index * 0.45, ease: 'easeInOut' }}
                     >
                       {word}
                     </motion.span>
                   ))}
-                  <Heart className="garden-heart" size={58} />
-                  <p>Tap the garden</p>
+                  <div className="garden-photo-strip">
+                    {[PHOTOS.sunlight, PHOTOS.mirror, PHOTOS.close].map((photo, index) => (
+                      <motion.figure
+                        key={photo}
+                        animate={{ y: [0, index % 2 ? 12 : -12, 0] }}
+                        transition={{ repeat: Infinity, duration: 5 + index, ease: 'easeInOut' }}
+                      >
+                        {renderImage(photo, `Garden memory ${index + 1}`)}
+                      </motion.figure>
+                    ))}
+                  </div>
+                  <Heart className="garden-heart" size={62} />
+                  <p>Tap to grow a wish</p>
                 </div>
               )}
 
@@ -366,17 +470,28 @@ function App() {
                 <motion.div
                   className="wish-orb"
                   animate={{
-                    scale: triggerExplosion ? [1, 1.3, 0.85, 1.05] : [1, 1.04, 1],
-                    rotate: triggerExplosion ? [0, 18, -10, 0] : [0, 4, -4, 0],
+                    scale: triggerExplosion ? [1, 1.26, 0.88, 1.06] : [1, 1.04, 1],
+                    rotate: triggerExplosion ? [0, 18, -10, 0] : [0, 3, -3, 0],
                   }}
                   transition={{ repeat: triggerExplosion ? 0 : Infinity, duration: triggerExplosion ? 2 : 4 }}
                 >
                   <div className="orb-core">
-                    <Sparkles size={54} />
+                    {renderImage(PHOTOS.birthday, 'Birthday wish portrait')}
                     <span>Make a wish</span>
                   </div>
                   <div className="orb-ring ring-a" />
                   <div className="orb-ring ring-b" />
+                  {[PHOTOS.tender, PHOTOS.garden, PHOTOS.sunlight, PHOTOS.close].map((photo, index) => (
+                    <motion.figure
+                      key={photo}
+                      className={`orb-photo orb-${index}`}
+                      animate={{ y: [0, index % 2 ? -10 : 10, 0] }}
+                      transition={{ repeat: Infinity, duration: 4 + index * 0.7, ease: 'easeInOut' }}
+                    >
+                      {renderImage(photo, `Orbiting memory ${index + 1}`)}
+                    </motion.figure>
+                  ))}
+                  <Sparkles className="orb-spark" size={42} />
                 </motion.div>
               )}
             </div>
@@ -395,21 +510,38 @@ function App() {
               className="final-frame"
               initial={{ y: 42, scale: 0.92 }}
               animate={{ y: 0, scale: 1 }}
-              transition={{ delay: 0.25, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ delay: 0.2, duration: 1, ease: [0.16, 1, 0.3, 1] }}
             >
-              <div className="final-image">
-                {renderImage(PUBLIC_PHOTOS[5], 'Birthday portrait')}
+              <div className="final-gallery">
+                {PHOTO_LIST.map((photo, index) => (
+                  <motion.figure
+                    key={`${photo}-${index}`}
+                    className={index === 0 ? 'is-featured' : ''}
+                    initial={{ opacity: 0, y: 26, rotate: index % 2 ? 3 : -3 }}
+                    animate={{ opacity: 1, y: 0, rotate: index % 2 ? 1.5 : -1.5 }}
+                    transition={{ delay: 0.25 + index * 0.07 }}
+                  >
+                    {renderImage(photo, `Final birthday memory ${index + 1}`)}
+                  </motion.figure>
+                ))}
               </div>
+
               <div className="final-copy">
                 <p className="eyebrow">For your birthday</p>
                 <h1>Happy Birthday, My Love</h1>
                 <p>
-                  May this year be gentle with your heart, generous with your dreams,
-                  and full of moments that remind you how deeply you are cherished.
+                  I hope this year meets you with the same tenderness you give the world.
+                  May it bring you mornings that feel peaceful, evenings that feel safe,
+                  and dreams that arrive sooner than you expected.
+                </p>
+                <p>
+                  You are the smile inside so many memories, the calm inside so many
+                  storms, and the reason ordinary moments turn into something worth
+                  saving.
                 </p>
                 <p className="signature">
-                  You are not just wished well today. You are celebrated, treasured,
-                  and loved in every quiet way.
+                  Today, I celebrate you fully: your heart, your courage, your beauty,
+                  and the gentle magic only you carry.
                 </p>
               </div>
             </motion.div>
