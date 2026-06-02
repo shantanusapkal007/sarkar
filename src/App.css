@@ -46,7 +46,9 @@
   position: relative;
   width: 100%;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
   isolation: isolate;
   background:
     radial-gradient(circle at 18% 18%, rgba(255, 204, 132, 0.18), transparent 28%),
@@ -694,7 +696,7 @@ figure {
 }
 
 .canvas-container {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
@@ -715,7 +717,11 @@ figure {
   .stage {
     grid-template-columns: 1fr;
     min-height: auto;
-    padding: 76px 0 34px;
+    padding: 76px 0 160px;
+  }
+
+  .finale {
+    padding: 48px 0 180px;
   }
 
   .copy-column {
