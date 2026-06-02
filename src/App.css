@@ -56,9 +56,9 @@
 
 .birthday-site.scene-6 {
   background:
-    radial-gradient(circle at 24% 12%, rgba(164, 56, 76, 0.14), transparent 30%),
-    linear-gradient(140deg, #fbf6ee 0%, #f2dfd4 54%, #e7c8cf 100%);
-  color: #3e2630;
+    radial-gradient(circle at 24% 12%, rgba(219, 61, 91, 0.22), transparent 40%),
+    linear-gradient(140deg, #18010a 0%, #2e0513 54%, #0c0205 100%);
+  color: var(--soft-ivory);
 }
 
 .scene-photo-bg,
@@ -82,7 +82,7 @@
 }
 
 .scene-6 .scene-photo-bg {
-  opacity: 0.15;
+  opacity: 0.28;
   filter: blur(22px) saturate(0.72);
 }
 
@@ -677,17 +677,17 @@ figure {
 }
 
 .final-copy h1 {
-  color: #4a1e2c;
+  color: var(--champagne-gold);
   font-size: clamp(3.35rem, 7vw, 7rem);
 }
 
 .final-copy p {
-  color: rgba(62, 38, 48, 0.78);
+  color: rgba(255, 248, 233, 0.88);
   font-size: 1.06rem;
 }
 
 .final-copy .signature {
-  color: #7a3145;
+  color: var(--rose-gold);
   font-family: var(--font-serif);
   font-size: 1.42rem;
   font-style: italic;
@@ -920,8 +920,8 @@ figure {
 
 /* Adapt bottom bar style beautifully in the warm ivory finale */
 .scene-6 .bottom-navigation-bar {
-  background: linear-gradient(to top, rgba(251, 246, 238, 0.98) 0%, rgba(251, 246, 238, 0.85) 60%, rgba(251, 246, 238, 0) 100%);
-  border-top: 1px solid rgba(62, 38, 48, 0.06);
+  background: linear-gradient(to top, rgba(9, 1, 5, 0.98) 0%, rgba(9, 1, 5, 0.85) 60%, rgba(9, 1, 5, 0) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Ensure copy column does not overflow behind the bottom bar */

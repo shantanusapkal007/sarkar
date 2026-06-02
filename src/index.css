@@ -207,3 +207,19 @@ html, body {
   align-items: center;
   gap: 10px;
 }
+
+/* Pulsing romantic neon gold-glow for the name Rajkunwar on Finale */
+.scene-6 .romantic-name {
+  animation: romanticGlow 2.8s ease-in-out infinite alternate;
+}
+
+@keyframes romanticGlow {
+  0% {
+    text-shadow: 0 0 10px rgba(252, 211, 77, 0.45), 0 0 20px rgba(252, 211, 77, 0.25), 0 0 30px rgba(251, 113, 133, 0.2);
+    transform: scale(1);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(252, 211, 77, 0.85), 0 0 38px rgba(252, 211, 77, 0.6), 0 0 55px rgba(251, 113, 133, 0.55), 0 0 80px rgba(251, 113, 133, 0.35);
+    transform: scale(1.03);
+  }
+}

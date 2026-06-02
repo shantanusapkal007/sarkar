@@ -625,12 +625,12 @@ function App() {
                       <div className="dream-frame" style={{ width: '100%', height: '62%' }}>
                         {renderImage(PHOTOS.sunlight, 'Prism Face 1')}
                       </div>
-                      <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
-                          "तुम हँसो तो ये कायनात मुस्कुराए"
+                      <div className="prism-poetry-container" style={{ padding: '6px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.8rem', color: 'var(--champagne-gold)', fontStyle: 'italic', lineHeight: '1.3' }}>
+                          "वो हुस्न ही क्या जो बस नज़र तक रहे,<br/>तुम तो वो ख्याल हो जो रूह तक उतर जाता है।"
                         </span>
-                        <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                          Tum hansdo toh yeh kaaynaat muskuraaye
+                        <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.45rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase', lineHeight: '1.25' }}>
+                          Wo husn hi kya jo bas nazar tak rahe, tum toh wo khayal ho jo rooh tak utar jaata hai
                         </span>
                       </div>
                     </div>
@@ -650,11 +650,11 @@ function App() {
                         {renderImage(PHOTOS.close, 'Prism Face 2')}
                       </div>
                       <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.98rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
-                          "हज़ार मौसम बदले मगर सादगी बेमिसाल रही"
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
+                          "तुम मुस्कुराओ, दिन बेहतर लगता है।"
                         </span>
                         <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                          Hazaar mausam badle, saadgi bemisaal rahi
+                          Tum muskurao, din behtar lagta hai
                         </span>
                       </div>
                     </div>
@@ -674,11 +674,11 @@ function App() {
                         {renderImage(PHOTOS.birthday, 'Prism Face 3')}
                       </div>
                       <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.98rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
-                          "तेरी सादगी में ही मेरा सारा जहां बसता है"
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
+                          "Today, the stars celebrate you."
                         </span>
                         <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                          Teri saadgi mein hi mera saara jahan basta hai
+                          Aaj yeh sitare bhi tumhara jashn mana rahe hain
                         </span>
                       </div>
                     </div>
