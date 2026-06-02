@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Heart, Sun, ArrowRight, Eye, Music, Volume2, VolumeX } from 'lucide-react';
+import { AnimatePresence, motion as motionHtml } from 'framer-motion';
+import { Sparkles, Heart, Sun, ArrowRight, Eye, Volume2, VolumeX } from 'lucide-react';
 import { DreamCanvas } from './components/DreamCanvas';
 import { MuteToggle } from './components/MuteToggle';
 import { audioEngine } from './utils/audioEngine';
+import gsap from 'gsap';
 
 // Photo assets defined at the root path (Vite public folder)
 const PHOTO_PATHS = {
@@ -21,7 +22,7 @@ function App() {
   const [userTouch, setUserTouch] = useState(null);
   const [triggerExplosion, setTriggerExplosion] = useState(false);
   
-  // Interactive flow triggers
+  // States tracking explored assets
   const [constellationsExplored, setConstellationsExplored] = useState({ c1: false, c2: false });
   const [activePhoto, setActivePhoto] = useState(null); 
   const [gardenBlooms, setGardenBlooms] = useState([]); 
@@ -29,14 +30,16 @@ function App() {
   const [riverProgress, setRiverProgress] = useState(0); 
   const [unspokenLights, setUnspokenLights] = useState({ l1: false, l2: false, l3: false, l4: false });
   
-  // Track image load errors to render elegant fallbacks
   const [imageErrors, setImageErrors] = useState({});
+
+  // GSAP Ref targets for 3D card tilt tracking
+  const card3dRef = useRef(null);
 
   const handleImageError = (key) => {
     setImageErrors(prev => ({ ...prev, [key]: true }));
   };
 
-  // Capture gestures to trigger canvas ripples/petals
+  // GSAP 3D card tilting logic on finger drag/touch
   const handleTouch = (e) => {
     const touch = e.touches ? e.touches[0] : e;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -45,31 +48,86 @@ function App() {
     
     setUserTouch({ x, y, time: Date.now() });
 
-    // In Scene 3 (Garden): spawn gorgeous glowing SVG blooming flower objects
+    // GSAP 3D perspective card tilt based on touch position relative to screen center
+    const normX = (touch.clientX / window.innerWidth) - 0.5;
+    const normY = (touch.clientY / window.innerHeight) - 0.5;
+    
+    // Animate 3D tilt of the current memory card
+    if (card3dRef.current) {
+      gsap.to(card3dRef.current, {
+        rotateY: normX * 30, // tilt up to 30 deg
+        rotateX: -normY * 30,
+        transformPerspective: 1000,
+        duration: 0.6,
+        ease: "power2.out"
+      });
+    }
+
+    // Scene 3 flower bloomer
     if (scene === 3) {
       const newFlower = {
         id: Date.now() + Math.random(),
         x,
         y,
-        size: Math.random() * 40 + 30,
+        size: Math.random() * 40 + 35,
         rotation: Math.random() * 360,
-        color: Math.random() > 0.5 ? 'var(--lavender-mist)' : 'var(--champagne-gold)'
+        color: Math.random() > 0.5 ? 'var(--rose-gold)' : 'var(--champagne-gold)'
       };
       setGardenBlooms(prev => [...prev, newFlower]);
       audioEngine.playChime(Math.floor(Math.random() * 4));
       
-      // Clean up flowers after bloom animation to save memory
       setTimeout(() => {
         setGardenBlooms(prev => prev.filter(f => f.id !== newFlower.id));
       }, 2000);
     }
   };
 
-  // Scene 1: Enter Dreamscape on Tapping Shooting Star
+  // Reset 3D card tilt slowly when finger is lifted
+  const handleTouchEnd = () => {
+    if (card3dRef.current) {
+      gsap.to(card3dRef.current, {
+        rotateY: 0,
+        rotateX: 0,
+        duration: 0.8,
+        ease: "power3.out"
+      });
+    }
+  };
+
+  // Scene transitions trigger GSAP split-line timelines
+  useEffect(() => {
+    if (scene === 1) {
+      // Smooth fade-in and split staggered reveal for intro texts
+      const tl = gsap.timeline();
+      tl.fromTo(".scene1-title", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.6, ease: "power3.out" })
+        .fromTo(".scene1-line", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.6, ease: "power3.out" }, "-=0.8");
+    } else if (scene === 7) {
+      // Ethereal final love letter stagger reveal
+      const tl = gsap.timeline();
+      tl.fromTo(".final-line-1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2.2, ease: "power2.out", delay: 2.0 })
+        .fromTo(".final-line-2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2.2, ease: "power2.out" }, "-=0.8")
+        .fromTo(".final-line-3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2.2, ease: "power2.out" }, "-=0.8")
+        .fromTo(".final-line-4", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 2.2, ease: "power2.out" }, "-=0.8")
+        .fromTo(".final-title", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 3.5, ease: "power3.out" }, "-=0.4")
+        .fromTo(".final-para", { opacity: 0 }, { opacity: 0.75, duration: 4.5, ease: "sine.out" }, "-=0.8");
+    }
+  }, [scene]);
+
+  // Scene 1: Enter Dreamscape on Tapping Flame
   const handleStart = () => {
-    audioEngine.init();
-    setAudioActive(true);
-    setScene(2);
+    // Fade out the candle and transition
+    gsap.to(".candle-flame", { scale: 0, opacity: 0, duration: 0.6, ease: "power3.in" });
+    gsap.to(".scene1-container", {
+      opacity: 0,
+      scale: 0.95,
+      duration: 1.2,
+      ease: "power2.inOut",
+      onComplete: () => {
+        audioEngine.init();
+        setAudioActive(true);
+        setScene(2);
+      }
+    });
   };
 
   // Scene 2 constellation click
@@ -98,14 +156,14 @@ function App() {
     setTriggerExplosion(true);
     audioEngine.playClimaxSwell();
 
-    // After 10 seconds, automatically fade to Scene 7 stillness
+    // Stardust timeline
     setTimeout(() => {
       setScene(7);
       audioEngine.fadeToSilence();
     }, 11000);
   };
 
-  // Render a gorgeous glassmorphic Ghibli-esque card when user's photo is not loaded
+  // Dior-Style Fallback Illustration
   const renderFallbackArt = (title, subtitle, iconType) => {
     return (
       <div 
@@ -120,22 +178,22 @@ function App() {
           padding: '24px',
           color: 'var(--soft-ivory)',
           textAlign: 'center',
-          background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.3) 100%)',
+          background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.35) 100%)',
           border: '1.5px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '16px',
+          borderRadius: '18px',
         }}
       >
-        <motion.div
+        <motionHtml.div
           animate={{ 
-            scale: [1, 1.08, 1],
-            rotate: [0, 8, -8, 0]
+            scale: [1, 1.06, 1],
+            rotateY: [0, 10, -10, 0]
           }}
           transition={{ 
             repeat: Infinity, 
-            duration: 6,
+            duration: 7,
             ease: "easeInOut"
           }}
-          style={{ marginBottom: '24px', color: 'var(--champagne-gold)' }}
+          style={{ marginBottom: '24px', color: 'var(--champagne-gold)', transformStyle: 'preserve-3d' }}
         >
           {iconType === 'constellation' && (
             <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="glow-text">
@@ -154,15 +212,15 @@ function App() {
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="rgba(252, 211, 77, 0.15)" />
             </svg>
           )}
-        </motion.div>
+        </motionHtml.div>
         
         <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.65rem', fontWeight: 300, letterSpacing: '0.08em', color: 'var(--soft-ivory)' }}>
           {title}
         </h4>
         
-        <div style={{ width: '40px', height: '1px', backgroundColor: 'var(--champagne-gold-glow)', margin: '16px 0' }} />
+        <div style={{ width: '40px', height: '1.5px', backgroundColor: 'var(--champagne-gold-glow)', margin: '18px 0' }} />
         
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--lavender-mist)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', color: 'var(--rose-gold)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
           {subtitle}
         </p>
       </div>
@@ -173,6 +231,8 @@ function App() {
     <div 
       onTouchStart={handleTouch}
       onMouseDown={handleTouch}
+      onTouchEnd={handleTouchEnd}
+      onMouseUp={handleTouchEnd}
       style={{
         width: '100%',
         height: '100%',
@@ -184,10 +244,10 @@ function App() {
         justifyContent: 'center',
         alignItems: 'center',
         transition: 'background 5.0s cubic-bezier(0.16, 1, 0.3, 1)',
-        ...(scene === 7 && { background: '#FAF9F6', color: '#3f3844' }) // soft luxury ivory warm ending
+        ...(scene === 7 && { background: '#FAF9F6', color: '#3f3844' }) // warm elegant ivory paper space
       }}
     >
-      {/* Background drifting ambient blur lights for depth */}
+      {/* Background drifting lights */}
       {scene !== 7 && (
         <>
           <div className="ambient-light ambient-gold" style={{ top: '10%', left: '5%', animation: 'float 22s infinite ease-in-out' }} />
@@ -206,7 +266,6 @@ function App() {
             background: 'linear-gradient(to top, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%)'
           }}
         >
-          {/* Animated SVG Clouds */}
           <svg width="100%" height="100%" viewBox="0 0 1440 200" preserveAspectRatio="none" style={{ position: 'absolute', bottom: 0 }}>
             <path d="M0,120 C180,90 320,150 480,120 C640,90 800,160 960,130 C1120,100 1260,140 1440,110 L1440,200 L0,200 Z" fill="#fafaf9" />
           </svg>
@@ -216,13 +275,13 @@ function App() {
       {/* Custom Particle Canvas layer */}
       <DreamCanvas scene={scene} triggerExplosion={triggerExplosion} userTouch={userTouch} />
 
-      {/* Floating Audio mute/unmute starry controls */}
+      {/* Floating Audio Controls */}
       <MuteToggle audioActive={audioActive} />
 
-      {/* Fullscreen Dreamy Photo Discovered Modal */}
+      {/* Fullscreen 3D Perspective Photo Discovered Modal */}
       <AnimatePresence>
         {activePhoto && (
-          <motion.div
+          <motionHtml.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -238,72 +297,85 @@ function App() {
               padding: '24px',
               backdropFilter: 'blur(15px)',
               WebkitBackdropFilter: 'blur(15px)',
+              perspective: 1000
             }}
           >
-            <motion.div
-              initial={{ scale: 0.88, y: 30 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.88, y: 30 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 120 }}
-              onClick={(e) => e.stopPropagation()} 
-              className="glass-panel"
+            {/* GSAP 3D tilting container */}
+            <div
+              ref={card3dRef}
               style={{
                 width: '100%',
                 maxWidth: '380px',
                 aspectRatio: '3/4.2',
-                padding: '20px',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                border: '1px solid rgba(255,255,255,0.15)',
-                boxShadow: '0 25px 60px rgba(0,0,0,0.6)'
+                transformStyle: 'preserve-3d',
+                zIndex: 110
               }}
             >
-              <div className="dream-frame" style={{ width: '100%', height: '82%', overflow: 'hidden' }}>
-                {!imageErrors[activePhoto] ? (
-                  <img 
-                    src={activePhoto} 
-                    alt="Memory Discovered" 
-                    onError={() => handleImageError(activePhoto)}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  renderFallbackArt("A Celestial Moment", "REVEALED IN THE DREAM", "constellation")
-                )}
-              </div>
-              
-              <div style={{ padding: '14px 4px 4px', textAlign: 'center' }}>
-                <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '1.25rem', color: 'var(--soft-ivory)', letterSpacing: '0.04em' }}>
-                  "Some moments never left."
-                </p>
-                <button 
-                  onClick={() => setActivePhoto(null)}
-                  style={{
-                    background: 'none', border: 'none', color: 'var(--champagne-gold)',
-                    fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em',
-                    marginTop: '10px', cursor: 'pointer', outline: 'none'
-                  }}
-                >
-                  Return to Dream
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
+              <motionHtml.div
+                initial={{ rotateY: -90, scale: 0.85, opacity: 0 }}
+                animate={{ rotateY: 0, scale: 1, opacity: 1 }}
+                exit={{ rotateY: 90, scale: 0.85, opacity: 0 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 100 }}
+                onClick={(e) => e.stopPropagation()} 
+                className="glass-panel"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+                  backfaceVisibility: 'hidden'
+                }}
+              >
+                <div className="dream-frame" style={{ width: '100%', height: '82%', overflow: 'hidden' }}>
+                  {!imageErrors[activePhoto] ? (
+                    <img 
+                      src={activePhoto} 
+                      alt="Memory Discovered" 
+                      onError={() => handleImageError(activePhoto)}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    renderFallbackArt("A Celestial Moment", "REVEALED IN THE DREAM", "constellation")
+                  )}
+                </div>
+                
+                <div style={{ padding: '14px 4px 4px', textAlign: 'center' }}>
+                  <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '1.25rem', color: 'var(--soft-ivory)', letterSpacing: '0.04em' }}>
+                    "Some moments never left."
+                  </p>
+                  <button 
+                    onClick={() => setActivePhoto(null)}
+                    style={{
+                      background: 'none', border: 'none', color: 'var(--champagne-gold)',
+                      fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em',
+                      marginTop: '10px', cursor: 'pointer', outline: 'none'
+                    }}
+                  >
+                    Return to Dream
+                  </button>
+                </div>
+              </motionHtml.div>
+            </div>
+          </motionHtml.div>
         )}
       </AnimatePresence>
 
       {/* Narrative Scene State Router */}
       <AnimatePresence mode="wait">
         
-        {/* Scene 1: Poetic Starry Opening */}
+        {/* Scene 1: Poetic Starry Opening with candle flame */}
         {scene === 1 && (
-          <motion.div
+          <motionHtml.div
             key="scene-1"
+            className="scene1-container"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 2.2 }}
+            transition={{ duration: 1.8 }}
             style={{
               width: '100%',
               maxWidth: '340px',
@@ -315,73 +387,60 @@ function App() {
               alignItems: 'center',
             }}
           >
-            {/* Dior luxury centered text layout */}
             <div style={{ marginBottom: '60px' }}>
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 1.8 }}
-                className="poem-title glow-text"
+              <p
+                className="poem-title glow-text scene1-title"
                 style={{ fontSize: '2.1rem', letterSpacing: '0.08em', fontWeight: 300 }}
               >
-                Some people arrive quietly.
-              </motion.p>
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 2.0, duration: 1.8 }}
-                className="poem-line"
+                It started in the quiet.
+              </p>
+              <p
+                className="poem-line scene1-line"
                 style={{ color: 'var(--lavender-mist)', fontSize: '1.5rem', marginTop: '12px' }}
               >
-                And somehow become an entire universe.
-              </motion.p>
+                A single heart beating in the dark.
+              </p>
             </div>
 
-            {/* Pulsing Shooting Star portal button */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ 
-                scale: [0.92, 1.08, 0.92],
-                opacity: 1,
-                boxShadow: ['0 0 20px var(--champagne-gold-glow)', '0 0 45px var(--champagne-gold-glow)', '0 0 20px var(--champagne-gold-glow)']
-              }}
-              transition={{
-                scale: { repeat: Infinity, duration: 3.2, ease: 'easeInOut' },
-                boxShadow: { repeat: Infinity, duration: 3.2, ease: 'easeInOut' },
-                opacity: { delay: 3.6, duration: 1.2 }
-              }}
+            {/* Glowing Swaying SVG Candle Flame Portal Trigger */}
+            <motionHtml.div
               onClick={handleStart}
-              className="glass-panel"
+              className="candle-flame star-btn"
+              whileHover={{ scale: 1.15 }}
+              whileTap={{ scale: 0.9 }}
               style={{
-                width: '72px',
-                height: '72px',
+                width: '74px',
+                height: '74px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                border: '1.5px solid var(--champagne-gold)',
-                color: 'var(--champagne-gold)',
+                border: '1.5px solid var(--rose-gold)',
+                color: 'var(--rose-gold)',
+                background: 'rgba(251, 113, 133, 0.05)',
+                boxShadow: '0 0 25px var(--rose-gold-glow)',
+                animation: 'sway 4s infinite ease-in-out'
               }}
             >
-              <Sparkles size={28} className="glow-text" />
-            </motion.div>
+              {/* Flame path */}
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" style={{ filter: 'drop-shadow(0 0 8px var(--rose-gold-glow))' }}>
+                <path d="M12 2C12 2 6 8.5 6 13.5C6 16.8 8.7 19.5 12 19.5C15.3 19.5 18 16.8 18 13.5C18 8.5 12 2 12 2Z" />
+              </svg>
+            </motionHtml.div>
             
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.45 }}
-              transition={{ delay: 4.8, duration: 1.0 }}
+            <p
               className="sub-text hint-fade"
-              style={{ marginTop: '24px', fontSize: '0.65rem' }}
+              style={{ marginTop: '28px', fontSize: '0.65rem', color: 'var(--rose-gold)' }}
             >
-              Touch the star to start
-            </motion.p>
-          </motion.div>
+              Touch the flame to begin
+            </p>
+          </motionHtml.div>
         )}
 
-        {/* Scene 2: Celestial Constellations */}
+        {/* Scene 2: Constellations of Us */}
         {scene === 2 && (
-          <motion.div
+          <motionHtml.div
             key="scene-2"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -398,17 +457,15 @@ function App() {
               zIndex: 10
             }}
           >
-            {/* Top poetry */}
             <div style={{ textAlign: 'center', maxWidth: '330px' }}>
               <p className="poem-line" style={{ fontSize: '1.4rem', fontStyle: 'italic' }}>
-                "Memories don't live in photographs.
+                "Two stars drifting in separate skies.
               </p>
               <p className="poem-line" style={{ fontSize: '1.4rem', color: 'var(--lavender-mist)', marginTop: '4px' }}>
-                They live in the feelings they leave behind."
+                Until their orbits collided."
               </p>
             </div>
 
-            {/* Draggable Celestial Sky Map */}
             <div 
               style={{
                 width: '100%',
@@ -419,7 +476,7 @@ function App() {
                 justifyContent: 'center',
               }}
             >
-              {/* Constellation connectors (SVG paths) */}
+              {/* Constellation lines */}
               <svg 
                 style={{
                   position: 'absolute',
@@ -429,18 +486,18 @@ function App() {
                   pointerEvents: 'none'
                 }}
               >
-                <motion.line 
+                <motionHtml.line 
                   x1="30%" y1="25%" x2="70%" y2="65%" 
-                  stroke="rgba(252, 211, 77, 0.1)" 
+                  stroke="rgba(252, 211, 77, 0.12)" 
                   strokeWidth="1"
                   strokeDasharray="4 4"
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ duration: 4 }}
                 />
-                <motion.line 
+                <motionHtml.line 
                   x1="70%" y1="65%" x2="25%" y2="80%" 
-                  stroke="rgba(252, 211, 77, 0.1)" 
+                  stroke="rgba(252, 211, 77, 0.12)" 
                   strokeWidth="1"
                   strokeDasharray="4 4"
                   initial={{ pathLength: 0 }}
@@ -450,7 +507,7 @@ function App() {
               </svg>
 
               {/* Constellation Star Node 1 */}
-              <motion.div
+              <motionHtml.div
                 onClick={() => handleConstellationClick('c1', PHOTO_PATHS.constellation1)}
                 whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.95 }}
@@ -478,10 +535,10 @@ function App() {
                 <p className="sub-text" style={{ position: 'absolute', top: '-26px', left: '-25px', width: '90px', fontSize: '0.6rem' }}>
                   I. RADIANCE
                 </p>
-              </motion.div>
+              </motionHtml.div>
 
               {/* Constellation Star Node 2 */}
-              <motion.div
+              <motionHtml.div
                 onClick={() => handleConstellationClick('c2', PHOTO_PATHS.constellation2)}
                 whileHover={{ scale: 1.15 }}
                 whileTap={{ scale: 0.95 }}
@@ -509,14 +566,14 @@ function App() {
                 <p className="sub-text" style={{ position: 'absolute', bottom: '-26px', left: '-30px', width: '100px', fontSize: '0.6rem' }}>
                   II. GRACE
                 </p>
-              </motion.div>
+              </motionHtml.div>
             </div>
 
-            {/* Portal bridge trigger */}
+            {/* Portal bridge */}
             <div style={{ height: '70px', display: 'flex', alignItems: 'center' }}>
               <AnimatePresence>
                 {constellationsExplored.c1 && constellationsExplored.c2 && (
-                  <motion.button
+                  <motionHtml.button
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
@@ -539,16 +596,16 @@ function App() {
                     }}
                   >
                     DESCEND INTO THE FLOATING GARDEN <ArrowRight size={14} style={{ color: 'var(--champagne-gold)' }} />
-                  </motion.button>
+                  </motionHtml.button>
                 )}
               </AnimatePresence>
             </div>
-          </motion.div>
+          </motionHtml.div>
         )}
 
-        {/* Scene 3: The Floating Garden of Moments */}
+        {/* Scene 3: The Floating Garden of Whispers with Self-Growing Vine Paths */}
         {scene === 3 && (
-          <motion.div
+          <motionHtml.div
             key="scene-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -565,17 +622,15 @@ function App() {
               zIndex: 10
             }}
           >
-            {/* Top poetry */}
             <div style={{ textAlign: 'center', maxWidth: '335px' }}>
               <p className="poem-line" style={{ fontSize: '1.4rem' }}>
-                "You weren't just part of the story.
+                "You didn't just walk into my life.
               </p>
               <p className="poem-line" style={{ fontSize: '1.4rem', color: 'var(--champagne-gold)', marginTop: '4px' }}>
                 You became the season everything started blooming."
               </p>
             </div>
 
-            {/* Glowing spawning SVG flower board */}
             <div 
               style={{
                 position: 'relative',
@@ -586,13 +641,13 @@ function App() {
                 justifyContent: 'center',
               }}
             >
-              {/* Blooming SVG layered flowers spawned on user click */}
+              {/* Procedural self-drawing vine SVG layers that render on screen click */}
               {gardenBlooms.map(f => (
-                <motion.div
+                <motionHtml.div
                   key={f.id}
-                  initial={{ scale: 0, opacity: 0, rotate: f.rotation - 45 }}
-                  animate={{ scale: 1, opacity: [0, 0.9, 0], rotate: f.rotation }}
-                  transition={{ duration: 2.0, ease: 'easeOut' }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: [0, 0.9, 0] }}
+                  transition={{ duration: 2.2, ease: 'easeOut' }}
                   style={{
                     position: 'absolute',
                     left: f.x - f.size / 2,
@@ -602,21 +657,23 @@ function App() {
                     pointerEvents: 'none'
                   }}
                 >
-                  <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke={f.color} strokeWidth="1.5">
-                    {/* Layered luxury flower petals */}
-                    <circle cx="12" cy="12" r="3" fill="rgba(255,255,255,0.1)" />
-                    <path d="M12 2C9.5 2 9.5 7 12 7C14.5 7 14.5 2 12 2Z" fill="rgba(255,255,255,0.05)" />
-                    <path d="M12 22C9.5 22 9.5 17 12 17C14.5 17 14.5 22 12 22Z" fill="rgba(255,255,255,0.05)" />
-                    <path d="M2 12C2 9.5 7 9.5 7 12C7 14.5 2 14.5 2 12Z" fill="rgba(255,255,255,0.05)" />
-                    <path d="M22 12C22 9.5 17 9.5 17 12C17 14.5 22 14.5 22 12Z" fill="rgba(255,255,255,0.05)" />
-                    <circle cx="12" cy="12" r="1.5" fill="var(--champagne-gold)" />
+                  {/* Procedurally drawing vine spiral */}
+                  <svg width="100%" height="100%" viewBox="0 0 40 40">
+                    <path 
+                      className="growing-path"
+                      d="M 20,20 A 10,10 0 1,1 10,20 A 5,5 0 1,1 15,20 A 2.5,2.5 0 1,1 17.5,20" 
+                      fill="none" 
+                      stroke={f.color} 
+                      strokeWidth="1.2"
+                    />
+                    <circle cx="20" cy="20" r="1.5" fill="var(--champagne-gold)" />
                   </svg>
-                </motion.div>
+                </motionHtml.div>
               ))}
 
-              {/* Butterflies carrying memories (swimming in sine paths) */}
+              {/* Butterflies carrying memories */}
               {/* Butterfly 1 */}
-              <motion.div
+              <motionHtml.div
                 onClick={(e) => { e.stopPropagation(); handleButterflyClick('b1', PHOTO_PATHS.garden1); }}
                 animate={{
                   x: [0, 30, -25, 0],
@@ -635,8 +692,8 @@ function App() {
                     padding: '12px 20px',
                     borderRadius: '18px',
                     border: '1px solid rgba(255,255,255,0.15)',
-                    boxShadow: butterfliesTapped.b1 ? 'none' : '0 4px 20px rgba(192, 132, 252, 0.3)',
-                    color: 'var(--lavender-mist)',
+                    boxShadow: butterfliesTapped.b1 ? 'none' : '0 4px 20px rgba(251, 113, 133, 0.25)',
+                    color: 'var(--rose-gold)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
@@ -645,10 +702,10 @@ function App() {
                   <Sparkles size={14} />
                   <span style={{ fontSize: '0.7rem', letterSpacing: '0.15em', fontWeight: 300 }}>III. HER LAUGH</span>
                 </div>
-              </motion.div>
+              </motionHtml.div>
 
               {/* Butterfly 2 */}
-              <motion.div
+              <motionHtml.div
                 onClick={(e) => { e.stopPropagation(); handleButterflyClick('b2', PHOTO_PATHS.garden2); }}
                 animate={{
                   x: [0, -35, 20, 0],
@@ -677,10 +734,10 @@ function App() {
                   <Heart size={12} style={{ color: 'var(--champagne-gold)' }} />
                   <span style={{ fontSize: '0.7rem', letterSpacing: '0.15em', fontWeight: 300 }}>IV. HER PATH</span>
                 </div>
-              </motion.div>
+              </motionHtml.div>
 
               <p className="sub-text hint-fade" style={{ fontSize: '0.6rem', position: 'absolute', bottom: '6%', opacity: 0.45 }}>
-                Grow flowers by touching screen. Tap floaters to bloom memories.
+                Touch anywhere to draw golden vines. Tap memories to bloom.
               </p>
             </div>
 
@@ -688,7 +745,7 @@ function App() {
             <div style={{ height: '70px', display: 'flex', alignItems: 'center' }}>
               <AnimatePresence>
                 {butterfliesTapped.b1 && butterfliesTapped.b2 && (
-                  <motion.button
+                  <motionHtml.button
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
@@ -711,16 +768,16 @@ function App() {
                     }}
                   >
                     ENTER THE RIVER OF TIME <ArrowRight size={14} style={{ color: 'var(--champagne-gold)' }} />
-                  </motion.button>
+                  </motionHtml.button>
                 )}
               </AnimatePresence>
             </div>
-          </motion.div>
+          </motionHtml.div>
         )}
 
-        {/* Scene 4: The River of Time */}
+        {/* Scene 4: River of Infinite Ripples */}
         {scene === 4 && (
-          <motion.div
+          <motionHtml.div
             key="scene-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -737,17 +794,15 @@ function App() {
               zIndex: 10
             }}
           >
-            {/* Top poetry */}
             <div style={{ textAlign: 'center', maxWidth: '330px' }}>
               <p className="poem-line" style={{ fontSize: '1.4rem' }}>
-                "Time kept moving.
+                "In a world of constant motion,
               </p>
               <p className="poem-line" style={{ fontSize: '1.4rem', color: 'var(--lavender-mist)', marginTop: '4px' }}>
-                Yet some moments never left."
+                you are my still point."
               </p>
             </div>
 
-            {/* Glowing undulating SVG water waves */}
             <div 
               style={{
                 width: '100%',
@@ -765,15 +820,15 @@ function App() {
                 style={{ 
                   position: 'absolute', 
                   top: '25%', 
-                  opacity: 0.15,
+                  opacity: 0.12,
                   pointerEvents: 'none'
                 }}
               >
-                <path d="M0,32 C120,42 240,48 360,42 C480,36 600,24 720,28 C840,32 960,48 1080,48 C1200,48 1320,38 1440,28 L1440,74 L0,74 Z" fill="rgba(252, 211, 77, 0.4)" />
+                <path d="M0,32 C120,42 240,48 360,42 C480,36 600,24 720,28 C840,32 960,48 1080,48 C1200,48 1320,38 1440,28 L1440,74 L0,74 Z" fill="rgba(251, 113, 133, 0.4)" />
               </svg>
 
-              {/* Draggable Water current block */}
-              <motion.div
+              {/* Draggable Current element */}
+              <motionHtml.div
                 drag="x"
                 dragConstraints={{ left: -140, right: 140 }}
                 onDrag={(e, info) => {
@@ -788,7 +843,7 @@ function App() {
                   setRiverProgress(progressValue);
 
                   if (Math.random() < 0.18) {
-                    audioEngine.playChime(3);
+                    audioEngine.playChime(2);
                   }
                 }}
                 className="glass-panel"
@@ -800,20 +855,19 @@ function App() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'grab',
-                  border: '1.5px solid rgba(252, 211, 77, 0.5)',
-                  boxShadow: '0 0 25px var(--champagne-gold-glow)',
-                  background: 'rgba(252, 211, 77, 0.05)',
+                  border: '1.5px solid rgba(251, 113, 133, 0.5)',
+                  boxShadow: '0 0 25px var(--rose-gold-glow)',
+                  background: 'rgba(251, 113, 133, 0.05)',
                   position: 'relative',
                   touchAction: 'none' 
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--champagne-gold)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--rose-gold)' }}>
                   <Sparkles size={18} className="glow-text" style={{ animation: 'spin 14s infinite linear' }} />
                   <span style={{ fontSize: '0.75rem', letterSpacing: '0.22em', fontWeight: 300 }}>DRAG THE WATER</span>
                 </div>
-              </motion.div>
+              </motionHtml.div>
 
-              {/* Shimmering progress indicator */}
               <div 
                 style={{ 
                   width: '130px', 
@@ -828,23 +882,23 @@ function App() {
                   style={{
                     width: `${riverProgress}%`,
                     height: '100%',
-                    backgroundColor: 'var(--champagne-gold)',
-                    boxShadow: '0 0 10px var(--champagne-gold)',
+                    backgroundColor: 'var(--rose-gold)',
+                    boxShadow: '0 0 10px var(--rose-gold)',
                     transition: 'width 0.15s ease-out'
                   }}
                 />
               </div>
 
               <p className="sub-text hint-fade" style={{ fontSize: '0.6rem', marginTop: '18px', opacity: 0.45 }}>
-                Sweep your finger back and forth to ripply unlock memories.
+                Sweep your finger back and forth to ripple unlock memories.
               </p>
             </div>
 
-            {/* Photo revealed down stream */}
+            {/* Photo floating down the river */}
             <div style={{ height: '70px', display: 'flex', alignItems: 'center' }}>
               <AnimatePresence>
                 {riverProgress >= 70 && (
-                  <motion.button
+                  <motionHtml.button
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
@@ -858,7 +912,7 @@ function App() {
                       borderRadius: '35px',
                       color: 'var(--soft-ivory)',
                       background: 'rgba(255,255,255,0.02)',
-                      border: '1.5px solid rgba(252, 211, 77, 0.3)',
+                      border: '1.5px solid rgba(251, 113, 133, 0.3)',
                       fontFamily: 'var(--font-sans)',
                       letterSpacing: '0.18em',
                       fontSize: '0.75rem',
@@ -869,17 +923,17 @@ function App() {
                       boxShadow: '0 10px 35px rgba(0,0,0,0.5)',
                     }}
                   >
-                    DISCOVER SWEPT MEMORY <ArrowRight size={14} style={{ color: 'var(--champagne-gold)' }} />
-                  </motion.button>
+                    DISCOVER SWEPT MEMORY <ArrowRight size={14} style={{ color: 'var(--rose-gold)' }} />
+                  </motionHtml.button>
                 )}
               </AnimatePresence>
             </div>
-          </motion.div>
+          </motionHtml.div>
         )}
 
-        {/* Scene 5: The Room of Unspoken Things */}
+        {/* Scene 5: Swaying Ghibli Lanterns of Unspoken Things */}
         {scene === 5 && (
-          <motion.div
+          <motionHtml.div
             key="scene-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -896,7 +950,6 @@ function App() {
               zIndex: 10
             }}
           >
-            {/* Top poetry */}
             <div style={{ textAlign: 'center', maxWidth: '330px' }}>
               <p className="poem-line" style={{ fontSize: '1.4rem' }}>
                 "In the velvet quiet of unspoken thoughts,
@@ -906,7 +959,6 @@ function App() {
               </p>
             </div>
 
-            {/* Room with beautifully animated hanging/swaying Ghibli Lanterns */}
             <div 
               style={{
                 width: '100%',
@@ -917,8 +969,9 @@ function App() {
                 justifyContent: 'center',
               }}
             >
-              {/* Hanging Lantern 1 (Sways) */}
-              <motion.div
+              {/* Hanging swaying lanterns */}
+              {/* Lantern 1 */}
+              <motionHtml.div
                 onClick={() => handleLightClick('l1')}
                 style={{
                   position: 'absolute',
@@ -930,17 +983,15 @@ function App() {
                 animate={{ rotate: [0, 6, -6, 0] }}
                 transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
               >
-                {/* Thin golden cord hanging down */}
                 <div style={{ width: '1px', height: '35px', backgroundColor: 'rgba(252,211,77,0.3)' }} />
-                
                 <div 
                   className="glass-panel"
                   style={{
                     padding: unspokenLights.l1 ? '12px 18px' : '14px 14px',
                     borderRadius: unspokenLights.l1 ? '16px' : '50%',
-                    border: '1px solid rgba(252, 211, 77, 0.4)',
-                    background: unspokenLights.l1 ? 'rgba(255,255,255,0.01)' : 'rgba(252, 211, 77, 0.08)',
-                    boxShadow: unspokenLights.l1 ? 'none' : '0 0 25px rgba(252, 211, 77, 0.5)',
+                    border: '1.5px solid rgba(251, 113, 133, 0.4)',
+                    background: unspokenLights.l1 ? 'rgba(255,255,255,0.01)' : 'rgba(251, 113, 133, 0.08)',
+                    boxShadow: unspokenLights.l1 ? 'none' : '0 0 25px rgba(251, 113, 133, 0.4)',
                     transition: 'all 0.5s ease',
                     textAlign: 'center',
                     maxWidth: '140px'
@@ -951,13 +1002,13 @@ function App() {
                       "The smile that stayed."
                     </p>
                   ) : (
-                    <Sparkles size={16} style={{ color: 'var(--champagne-gold)' }} />
+                    <Sparkles size={16} style={{ color: 'var(--rose-gold)' }} />
                   )}
                 </div>
-              </motion.div>
+              </motionHtml.div>
 
-              {/* Hanging Lantern 2 */}
-              <motion.div
+              {/* Lantern 2 */}
+              <motionHtml.div
                 onClick={() => handleLightClick('l2')}
                 style={{
                   position: 'absolute',
@@ -970,15 +1021,14 @@ function App() {
                 transition={{ repeat: Infinity, duration: 5.2, ease: 'easeInOut' }}
               >
                 <div style={{ width: '1px', height: '25px', backgroundColor: 'rgba(252,211,77,0.3)' }} />
-                
                 <div 
                   className="glass-panel"
                   style={{
                     padding: unspokenLights.l2 ? '12px 18px' : '14px 14px',
                     borderRadius: unspokenLights.l2 ? '16px' : '50%',
-                    border: '1px solid rgba(252, 211, 77, 0.4)',
-                    background: unspokenLights.l2 ? 'rgba(255,255,255,0.01)' : 'rgba(252, 211, 77, 0.08)',
-                    boxShadow: unspokenLights.l2 ? 'none' : '0 0 25px rgba(252, 211, 77, 0.5)',
+                    border: '1.5px solid rgba(251, 113, 133, 0.4)',
+                    background: unspokenLights.l2 ? 'rgba(255,255,255,0.01)' : 'rgba(251, 113, 133, 0.08)',
+                    boxShadow: unspokenLights.l2 ? 'none' : '0 0 25px rgba(251, 113, 133, 0.4)',
                     transition: 'all 0.5s ease',
                     textAlign: 'center',
                     maxWidth: '150px'
@@ -989,13 +1039,13 @@ function App() {
                       "The moment that became home."
                     </p>
                   ) : (
-                    <Sparkles size={16} style={{ color: 'var(--champagne-gold)' }} />
+                    <Sparkles size={16} style={{ color: 'var(--rose-gold)' }} />
                   )}
                 </div>
-              </motion.div>
+              </motionHtml.div>
 
-              {/* Hanging Lantern 3 */}
-              <motion.div
+              {/* Lantern 3 */}
+              <motionHtml.div
                 onClick={() => handleLightClick('l3')}
                 style={{
                   position: 'absolute',
@@ -1008,15 +1058,14 @@ function App() {
                 transition={{ repeat: Infinity, duration: 5.8, ease: 'easeInOut' }}
               >
                 <div style={{ width: '1px', height: '30px', backgroundColor: 'rgba(252,211,77,0.3)' }} />
-                
                 <div 
                   className="glass-panel"
                   style={{
                     padding: unspokenLights.l3 ? '12px 18px' : '14px 14px',
                     borderRadius: unspokenLights.l3 ? '16px' : '50%',
-                    border: '1px solid rgba(252, 211, 77, 0.4)',
-                    background: unspokenLights.l3 ? 'rgba(255,255,255,0.01)' : 'rgba(252, 211, 77, 0.08)',
-                    boxShadow: unspokenLights.l3 ? 'none' : '0 0 25px rgba(252, 211, 77, 0.5)',
+                    border: '1.5px solid rgba(251, 113, 133, 0.4)',
+                    background: unspokenLights.l3 ? 'rgba(255,255,255,0.01)' : 'rgba(251, 113, 133, 0.08)',
+                    boxShadow: unspokenLights.l3 ? 'none' : '0 0 25px rgba(251, 113, 133, 0.4)',
                     transition: 'all 0.5s ease',
                     textAlign: 'center',
                     maxWidth: '150px'
@@ -1027,13 +1076,13 @@ function App() {
                       "The memory that never faded."
                     </p>
                   ) : (
-                    <Sparkles size={16} style={{ color: 'var(--champagne-gold)' }} />
+                    <Sparkles size={16} style={{ color: 'var(--rose-gold)' }} />
                   )}
                 </div>
-              </motion.div>
+              </motionHtml.div>
 
-              {/* Hanging Lantern 4 */}
-              <motion.div
+              {/* Lantern 4 */}
+              <motionHtml.div
                 onClick={() => handleLightClick('l4')}
                 style={{
                   position: 'absolute',
@@ -1046,15 +1095,14 @@ function App() {
                 transition={{ repeat: Infinity, duration: 6.5, ease: 'easeInOut' }}
               >
                 <div style={{ width: '1px', height: '40px', backgroundColor: 'rgba(252,211,77,0.3)' }} />
-                
                 <div 
                   className="glass-panel"
                   style={{
                     padding: unspokenLights.l4 ? '12px 18px' : '14px 14px',
                     borderRadius: unspokenLights.l4 ? '16px' : '50%',
-                    border: '1px solid rgba(252, 211, 77, 0.4)',
-                    background: unspokenLights.l4 ? 'rgba(255,255,255,0.01)' : 'rgba(252, 211, 77, 0.08)',
-                    boxShadow: unspokenLights.l4 ? 'none' : '0 0 25px rgba(252, 211, 77, 0.5)',
+                    border: '1.5px solid rgba(251, 113, 133, 0.4)',
+                    background: unspokenLights.l4 ? 'rgba(255,255,255,0.01)' : 'rgba(251, 113, 133, 0.08)',
+                    boxShadow: unspokenLights.l4 ? 'none' : '0 0 25px rgba(251, 113, 133, 0.4)',
                     transition: 'all 0.5s ease',
                     textAlign: 'center',
                     maxWidth: '160px'
@@ -1065,17 +1113,17 @@ function App() {
                       "The laugh that made everything lighter."
                     </p>
                   ) : (
-                    <Sparkles size={16} style={{ color: 'var(--champagne-gold)' }} />
+                    <Sparkles size={16} style={{ color: 'var(--rose-gold)' }} />
                   )}
                 </div>
-              </motion.div>
+              </motionHtml.div>
             </div>
 
             {/* Portal to Climax */}
             <div style={{ height: '70px', display: 'flex', alignItems: 'center' }}>
               <AnimatePresence>
                 {unspokenLights.l1 && unspokenLights.l2 && unspokenLights.l3 && unspokenLights.l4 && (
-                  <motion.button
+                  <motionHtml.button
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
@@ -1086,7 +1134,7 @@ function App() {
                       borderRadius: '35px',
                       color: 'var(--soft-ivory)',
                       background: 'rgba(255,255,255,0.02)',
-                      border: '1.5px solid rgba(252, 211, 77, 0.3)',
+                      border: '1.5px solid rgba(251, 113, 133, 0.3)',
                       fontFamily: 'var(--font-sans)',
                       letterSpacing: '0.18em',
                       fontSize: '0.75rem',
@@ -1097,17 +1145,17 @@ function App() {
                       boxShadow: '0 10px 35px rgba(0,0,0,0.5)',
                     }}
                   >
-                    SUMMON THE BIRTHDAY STAR <ArrowRight size={14} style={{ color: 'var(--champagne-gold)' }} />
-                  </motion.button>
+                    SUMMON THE BIRTHDAY STAR <ArrowRight size={14} style={{ color: 'var(--rose-gold)' }} />
+                  </motionHtml.button>
                 )}
               </AnimatePresence>
             </div>
-          </motion.div>
+          </motionHtml.div>
         )}
 
-        {/* Scene 6: The Birthday Star (Climax) */}
+        {/* Scene 6: The Climax - Beating Heart Star Explosion */}
         {scene === 6 && (
-          <motion.div
+          <motionHtml.div
             key="scene-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1126,43 +1174,37 @@ function App() {
           >
             {!triggerExplosion ? (
               <div style={{ textAlign: 'center', maxWidth: '340px' }}>
-                <motion.p
+                <motionHtml.p
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5, duration: 1.6 }}
                   className="poem-line"
                   style={{ color: 'var(--soft-ivory)', letterSpacing: '0.04em' }}
                 >
-                  Once every year,
-                </motion.p>
-                <motion.p
+                  Once in a lifetime,
+                </motionHtml.p>
+                <motionHtml.p
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.6, duration: 1.6 }}
                   className="poem-line"
                   style={{ color: 'var(--lavender-mist)', marginTop: '8px', letterSpacing: '0.04em' }}
                 >
-                  the universe celebrates
-                </motion.p>
-                <motion.p
+                  you meet someone who becomes your world.
+                </motionHtml.p>
+                <motionHtml.p
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 2.8, duration: 1.6 }}
                   className="poem-line glow-text"
-                  style={{ color: 'var(--champagne-gold)', marginTop: '8px', letterSpacing: '0.04em' }}
+                  style={{ color: 'var(--rose-gold)', marginTop: '8px', letterSpacing: '0.04em' }}
                 >
-                  one of its most beautiful creations.
-                </motion.p>
+                  Today, the universe celebrates you.
+                </motionHtml.p>
 
-                {/* Pulsing heart beat star */}
-                <motion.div
+                {/* Beating Heart Compass Star */}
+                <motionHtml.div
                   onClick={handleBirthdayStarClick}
-                  animate={{
-                    scale: [0.92, 1.12, 0.92],
-                    boxShadow: ['0 0 25px var(--champagne-gold-glow)', '0 0 55px var(--champagne-gold-glow)', '0 0 25px var(--champagne-gold-glow)']
-                  }}
-                  transition={{ repeat: Infinity, duration: 2.0, ease: 'easeInOut' }}
-                  className="glass-panel"
                   style={{
                     width: '94px',
                     height: '94px',
@@ -1171,24 +1213,24 @@ function App() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    border: '2px solid var(--champagne-gold)',
-                    color: 'var(--champagne-gold)',
-                    margin: '64px auto 0'
+                    border: '2px solid var(--rose-gold)',
+                    color: 'var(--rose-gold)',
+                    margin: '64px auto 0',
+                    animation: 'heartbeat 1.8s infinite ease-in-out'
                   }}
                 >
-                  {/* Glowing Compass star SVG */}
-                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="glow-text" style={{ animation: 'spin 16s infinite linear' }}>
-                    <path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2z" />
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" className="glow-text">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                   </svg>
-                </motion.div>
+                </motionHtml.div>
                 
-                <p className="sub-text hint-fade" style={{ fontSize: '0.65rem', marginTop: '24px', opacity: 0.4 }}>
-                  Touch the Birthday Star
+                <p className="sub-text hint-fade" style={{ fontSize: '0.65rem', marginTop: '24px', opacity: 0.45 }}>
+                  Touch the beating heart
                 </p>
               </div>
             ) : (
-              // Breathtaking grand visual Photo frame revealed inside Orbit Golden storm
-              <motion.div
+              // Breathtaking grand visual Photo frame revealed inside Orbit stardust
+              <motionHtml.div
                 initial={{ scale: 0.1, rotate: -35, opacity: 0 }}
                 animate={{ scale: 1, rotate: 0, opacity: 1 }}
                 transition={{ 
@@ -1206,8 +1248,8 @@ function App() {
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                  boxShadow: '0 0 50px rgba(252, 211, 77, 0.4), var(--glass-glow)',
-                  border: '1.5px solid var(--champagne-gold)',
+                  boxShadow: '0 0 50px rgba(251, 113, 133, 0.35), var(--glass-glow)',
+                  border: '1.5px solid var(--rose-gold)',
                   background: 'rgba(5, 6, 12, 0.5)'
                 }}
               >
@@ -1220,7 +1262,7 @@ function App() {
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
-                    renderFallbackArt("Happy Birthday ❤️", "OF ALL THE SEASONS, YOU REMAIN THE ONE", "heart")
+                    renderFallbackArt("Happy Birthday ❤️", "MY HEART WILL ALWAYS CHOOSE YOU", "heart")
                   )}
                 </div>
                 
@@ -1238,17 +1280,17 @@ function App() {
                     Happy Birthday
                   </p>
                   <p className="sub-text" style={{ fontSize: '0.7rem', marginTop: '6px', color: 'var(--soft-ivory)', letterSpacing: '0.22em' }}>
-                    THE LIGHT OF OUR UNIVERSE
+                    THE SOUL OF MY UNIVERSE
                   </p>
                 </div>
-              </motion.div>
+              </motionHtml.div>
             )}
-          </motion.div>
+          </motionHtml.div>
         )}
 
-        {/* Scene 7: Ethereal Final Poem Space */}
+        {/* Scene 7: Ethereal Love Letter Stillness (Ivory Paper ending) */}
         {scene === 7 && (
-          <motion.div
+          <motionHtml.div
             key="scene-7"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1260,61 +1302,44 @@ function App() {
               textAlign: 'center',
               zIndex: 10,
               padding: '24px',
-              color: '#3f3844' 
+              color: '#3f3844' // soft charcoal elegant calligraphy
             }}
           >
-            {/* Sequential slow text fades */}
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2.2, duration: 2.5 }}
-              className="poem-line"
-              style={{ color: '#4a4150', fontSize: '1.65rem', lineHeight: 1.4, letterSpacing: '0.04em' }}
+            {/* GSAP split line targets */}
+            <p
+              className="poem-line final-line-1"
+              style={{ color: '#4a4150', fontSize: '1.65rem', lineHeight: 1.45, letterSpacing: '0.04em' }}
             >
-              "Of all the beautiful moments,
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 4.8, duration: 2.5 }}
-              className="poem-line"
-              style={{ color: '#4a4150', fontSize: '1.65rem', lineHeight: 1.4, marginTop: '8px', letterSpacing: '0.04em' }}
+              "Of all the moments in this lifetime,
+            </p>
+            <p
+              className="poem-line final-line-2"
+              style={{ color: '#4a4150', fontSize: '1.65rem', lineHeight: 1.45, marginTop: '8px', letterSpacing: '0.04em' }}
             >
               all the changing seasons,
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 7.4, duration: 2.5 }}
-              className="poem-line"
-              style={{ color: '#4a4150', fontSize: '1.65rem', lineHeight: 1.4, marginTop: '8px', letterSpacing: '0.04em' }}
+            </p>
+            <p
+              className="poem-line final-line-3"
+              style={{ color: '#4a4150', fontSize: '1.65rem', lineHeight: 1.45, marginTop: '8px', letterSpacing: '0.04em' }}
             >
-              all the passing years,
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 10.0, duration: 2.8 }}
-              className="poem-line"
+              all the passing years...
+            </p>
+            <p
+              className="poem-line final-line-4"
               style={{ color: '#aa3bff', fontSize: '1.9rem', fontWeight: 400, marginTop: '18px', letterSpacing: '0.04em' }}
             >
-              you remain my favorite."
-            </motion.p>
+              my heart will always choose you."
+            </p>
 
-            <motion.p
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 14.0, duration: 3.5 }}
-              className="poem-title"
+            <p
+              className="poem-title final-title"
               style={{ color: '#aa3bff', fontSize: '2.6rem', fontWeight: 300, margin: '52px 0 28px', letterSpacing: '0.06em' }}
             >
-              Happy Birthday ❤️
-            </motion.p>
+              Happy Birthday, My Love ❤️
+            </p>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.75 }}
-              transition={{ delay: 18.5, duration: 4.5 }}
+            <p
+              className="final-para"
               style={{
                 fontFamily: 'var(--font-serif)',
                 fontSize: '1.2rem',
@@ -1325,9 +1350,9 @@ function App() {
                 margin: '0 auto'
               }}
             >
-              "May your life be filled with wonder, your heart with happiness, and your days with the same light you bring into the lives of others."
-            </motion.p>
-          </motion.div>
+              "May your days be filled with the same light, warmth, and magic you bring to my soul."
+            </p>
+          </motionHtml.div>
         )}
 
       </AnimatePresence>

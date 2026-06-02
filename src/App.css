@@ -1,31 +1,31 @@
-/* Luxury Dreamscape Micro-Animations */
+/* Luxury Romantic Micro-Animations */
 
-/* Floating animation for smooth background ambient lights */
+/* Floating animation for smooth background ambient blurs */
 @keyframes float {
   0% {
     transform: translate(0px, 0px) scale(1);
   }
   33% {
-    transform: translate(30px, -50px) scale(1.15);
+    transform: translate(40px, -60px) scale(1.15);
   }
   66% {
-    transform: translate(-20px, 20px) scale(0.9);
+    transform: translate(-30px, 30px) scale(0.9);
   }
   100% {
     transform: translate(0px, 0px) scale(1);
   }
 }
 
-/* Pulsing keyframe for interactive constellation nodes and indicators */
+/* Pulsing keyframe for the glowing heart and constellation stars */
 @keyframes pulse {
   0% {
     transform: scale(1);
     opacity: 0.9;
   }
   50% {
-    transform: scale(1.08);
+    transform: scale(1.06);
     opacity: 1;
-    filter: brightness(1.2) drop-shadow(0 0 12px var(--champagne-gold-glow));
+    filter: brightness(1.15) drop-shadow(0 0 16px var(--champagne-gold-glow));
   }
   100% {
     transform: scale(1);
@@ -33,7 +33,7 @@
   }
 }
 
-/* Continuous smooth spinning for luxury celestial shapes */
+/* Continuous smooth spinning for celestial alignment shapes */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -43,7 +43,37 @@
   }
 }
 
-/* Ethereal light sweep effect for the final climax reveal */
+/* Swaying animation representing real physical sways for hanging lanterns or candles */
+@keyframes sway {
+  0%, 100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+/* Gentle heartbeat animation for the Birthday Star */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 15px var(--champagne-gold-glow));
+  }
+  25% {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 35px var(--champagne-gold-glow));
+  }
+  40% {
+    transform: scale(0.96);
+    filter: drop-shadow(0 0 10px var(--champagne-gold-glow));
+  }
+  60% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 30px var(--champagne-gold-glow));
+  }
+}
+
+/* Ethereal light sweep sweep effect for final climax reveal */
 .luxury-sweep {
   position: relative;
   overflow: hidden;
@@ -59,7 +89,7 @@
   background: linear-gradient(
     to right,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.4) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   transform: skewX(-25deg);
@@ -71,18 +101,18 @@
   transition: 1.5s ease-in-out;
 }
 
-/* Simple text bounce loop for interactive micro-hints */
+/* Simple text pulse for helpers */
 .hint-fade {
   animation: hintPulse 2.5s infinite ease-in-out;
 }
 
 @keyframes hintPulse {
   0%, 100% {
-    opacity: 0.3;
+    opacity: 0.45;
     transform: translateY(0);
   }
   50% {
-    opacity: 0.6;
+    opacity: 0.75;
     transform: translateY(-4px);
   }
 }
