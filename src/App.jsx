@@ -115,38 +115,198 @@ const memories = [
   },
 ];
 
+// Idea 3: Masked GSAP Staggered Word Reveal Component
+const MaskedText = ({ text, className = '' }) => {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const elements = containerRef.current.querySelectorAll('.masked-word');
+            gsap.fromTo(
+              elements,
+              { y: '110%', opacity: 0 },
+              {
+                y: '0%',
+                opacity: 1,
+                duration: 0.85,
+                stagger: 0.04,
+                ease: 'power4.out',
+                overwrite: 'auto'
+              }
+            );
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [text]);
+
+  const words = text.split(' ');
+
+  return (
+    <span ref={containerRef} className={`masked-text-container ${className}`} style={{ display: 'block', overflow: 'hidden' }}>
+      {words.map((word, index) => (
+        <span
+          key={index}
+          className="masked-word-wrapper"
+          style={{
+            display: 'inline-block',
+            overflow: 'hidden',
+            marginRight: '0.24em',
+            verticalAlign: 'bottom'
+          }}
+        >
+          <span
+            className="masked-word"
+            style={{
+              display: 'inline-block',
+              transform: 'translateY(110%)',
+              opacity: 0,
+              willChange: 'transform, opacity'
+            }}
+          >
+            {word}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+};
+
 function App() {
   const [scene, setScene] = useState(1);
+  const [activeSection, setActiveSection] = useState(1);
   const [audioActive, setAudioActive] = useState(false);
   const [activeMemory, setActiveMemory] = useState(null);
   const [imageErrors, setImageErrors] = useState({});
   const [gardenMarks, setGardenMarks] = useState([]);
   const [triggerExplosion, setTriggerExplosion] = useState(false);
   const [userTouch, setUserTouch] = useState(null);
-  const artworkRef = useRef(null);
   
-  // 3D Prism Refs
+  const artworkRef = useRef(null);
   const prismRef = useRef(null);
   const isDraggingPrism = useRef(false);
   const startX = useRef(0);
   const currentRotationY = useRef(0);
 
-  const chapter = chapters[Math.max(0, scene - 1)] || chapters[chapters.length - 1];
-  const backdrop = scene < 6 ? chapter.backdrop : PHOTOS.birthday;
+  const backdrop = scene < 6 ? chapters[activeSection - 1]?.backdrop : PHOTOS.birthday;
 
   const floatingWords = useMemo(
     () => ['softness', 'light', 'laughter', 'courage', 'home', 'grace', 'forever'],
     []
   );
 
-  const beginExperience = () => {
-    audioEngine.init();
-    setAudioActive(true);
-    setScene(2);
+  // Opens the website at the absolute top section
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Set up general touch / click listener to auto-start MP3 and respect browser policies
+  useEffect(() => {
+    const handleGesture = () => {
+      if (!audioActive) {
+        audioEngine.init();
+        setAudioActive(true);
+      }
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('scroll', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+    };
+
+    window.addEventListener('click', handleGesture);
+    window.addEventListener('scroll', handleGesture);
+    window.addEventListener('touchstart', handleGesture, { passive: true });
+
+    return () => {
+      window.removeEventListener('click', handleGesture);
+      window.removeEventListener('scroll', handleGesture);
+      window.removeEventListener('touchstart', handleGesture);
+    };
+  }, [audioActive]);
+
+  // Viewport IntersectionObserver to track and transition particle canvas states dynamically
+  useEffect(() => {
+    if (scene >= 6) return;
+
+    const stages = document.querySelectorAll('.stage');
+    const observerOptions = {
+      root: null,
+      rootMargin: '-35% 0px -35% 0px', // Trigger when section centers in middle 30% of viewport
+      threshold: 0.05,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = parseInt(entry.target.getAttribute('data-section-index'), 10);
+          if (!isNaN(index)) {
+            setActiveSection(index);
+          }
+        }
+      });
+    }, observerOptions);
+
+    stages.forEach((stage) => observer.observe(stage));
+
+    return () => observer.disconnect();
+  }, [scene]);
+
+  // Smooth scroll helper to navigate between sections
+  const scrollToSection = (index) => {
+    const targetSection = document.querySelector(`[data-section-index="${index}"]`);
+    if (targetSection) {
+      targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   };
 
-  const advance = () => {
-    setScene((current) => Math.min(current + 1, 6));
+  const handleBegin = () => {
+    audioEngine.init();
+    setAudioActive(true);
+    scrollToSection(2);
+  };
+
+  const handleToGarden = () => scrollToSection(3);
+  const handleToPrism = () => scrollToSection(4);
+  const handleToWish = () => scrollToSection(5);
+
+  // Idea 1: Smooth 3D Card Hover / Touch Coordinates Tilt depth binding
+  const handleCardTilt = (event, element) => {
+    const rect = element.getBoundingClientRect();
+    const clientX = event.touches?.[0]?.clientX ?? event.clientX;
+    const clientY = event.touches?.[0]?.clientY ?? event.clientY;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    // Elegant 11 degrees maximum rotation sweep
+    const rotateY = ((x / rect.width) - 0.5) * 11;
+    const rotateX = -((y / rect.height) - 0.5) * 11;
+    
+    gsap.to(element, {
+      rotateX,
+      rotateY,
+      transformPerspective: 800,
+      duration: 0.35,
+      ease: 'power2.out',
+    });
+  };
+
+  const handleCardReset = (element) => {
+    gsap.to(element, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 0.65,
+      ease: 'power3.out',
+    });
   };
 
   const handleArtworkMove = (event) => {
@@ -180,8 +340,6 @@ function App() {
   };
 
   const handleGardenTouch = (event) => {
-    if (scene !== 3) return;
-
     const rect = event.currentTarget.getBoundingClientRect();
     const clientX = event.touches?.[0]?.clientX ?? event.clientX;
     const clientY = event.touches?.[0]?.clientY ?? event.clientY;
@@ -193,7 +351,7 @@ function App() {
       delay: Math.random() * 0.12,
     };
 
-    setUserTouch({ x: clientX, y: clientY, time: Date.now() });
+    setUserTouch({ x: clientX - rect.left, y: clientY - rect.top, time: Date.now() });
     setGardenMarks((items) => [...items.slice(-18), mark]);
   };
 
@@ -208,7 +366,6 @@ function App() {
     const clientX = event.touches?.[0]?.clientX ?? event.clientX;
     const deltaX = clientX - startX.current;
     
-    // Smooth Y rotation rotation sweep based on horizontal drags
     const targetRotation = currentRotationY.current + deltaX * 0.6;
     
     gsap.to(prismRef.current, {
@@ -223,7 +380,6 @@ function App() {
     if (!isDraggingPrism.current) return;
     isDraggingPrism.current = false;
     
-    // Save rotation index state
     if (prismRef.current) {
       const computedRotation = gsap.getProperty(prismRef.current, "rotateY") || 0;
       currentRotationY.current = computedRotation;
@@ -235,8 +391,14 @@ function App() {
     setTriggerExplosion(true);
     audioEngine.playClimaxSwell();
 
+    // Scroll to the bottom wish orb to keep focus on the stardust wave explosion
+    const orb = document.querySelector('.wish-orb');
+    if (orb) {
+      orb.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     setTimeout(() => {
-      setScene(6); // Final Section is now Scene 6
+      setScene(6);
       setTriggerExplosion(false);
       audioEngine.fadeToSilence();
     }, 5400);
@@ -267,8 +429,13 @@ function App() {
       <div className="aurora aurora-two" />
       <div className="paper-grain" />
 
-      {/* Synchronize Scene 6 climax inside Canvas particle overlays */}
-      <DreamCanvas scene={triggerExplosion ? 6 : (scene === 6 ? 7 : scene)} triggerExplosion={triggerExplosion} userTouch={userTouch} />
+      {/* Viewport particle layer engine */}
+      <DreamCanvas 
+        scene={triggerExplosion ? 6 : (scene === 6 ? 7 : activeSection)} 
+        triggerExplosion={triggerExplosion} 
+        userTouch={userTouch} 
+      />
+      
       <MuteToggle audioActive={audioActive} />
 
       <AnimatePresence>
@@ -301,53 +468,34 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        {scene < 6 && (
-          <motion.section
-            key={scene}
-            className="stage"
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -28 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="copy-column">
-              <motion.p
-                className="eyebrow"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18 }}
-              >
-                {chapter.eyebrow}
-              </motion.p>
-              <motion.h1
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.32 }}
-              >
-                {chapter.title}
-              </motion.h1>
-              <motion.p
-                className="chapter-copy"
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.48 }}
-              >
-                {chapter.copy}
-              </motion.p>
-            </div>
+        {scene < 6 ? (
+          <div className="story-scroll-container">
+            
+            {/* Section 01: The Overture */}
+            <section className="stage overture-stage" data-section-index="1">
+              <div className="copy-column">
+                <p className="eyebrow">{chapters[0].eyebrow}</p>
+                <MaskedText text={chapters[0].title} className="stage-title" />
+                <p className="chapter-copy">{chapters[0].copy}</p>
+                
+                <motion.button
+                  className="primary-action"
+                  onClick={handleBegin}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  {chapters[0].cta}
+                  <ArrowRight size={18} />
+                </motion.button>
+              </div>
 
-            <div className="art-column">
-              {scene === 1 && (
-                <motion.div
+              <div className="art-column">
+                <div
                   ref={artworkRef}
                   className="hero-photo-theatre"
                   onMouseMove={handleArtworkMove}
                   onMouseLeave={resetArtwork}
                   onTouchMove={handleArtworkMove}
                   onTouchEnd={resetArtwork}
-                  initial={{ opacity: 0, scale: 0.92, rotate: -2 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.25, duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <div className="halo-ring" />
                   <motion.figure
@@ -375,15 +523,37 @@ function App() {
                     <Gift size={18} />
                     <span>Happy Birthday</span>
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </div>
+            </section>
 
-              {scene === 2 && (
+            {/* Section 02: Memory Constellation */}
+            <section className="stage constellation-stage" data-section-index="2">
+              <div className="copy-column">
+                <p className="eyebrow">{chapters[1].eyebrow}</p>
+                <MaskedText text={chapters[1].title} className="stage-title" />
+                <p className="chapter-copy">{chapters[1].copy}</p>
+                
+                <motion.button
+                  className="primary-action"
+                  onClick={handleToGarden}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  {chapters[1].cta}
+                  <ArrowRight size={18} />
+                </motion.button>
+              </div>
+
+              <div className="art-column">
                 <div className="memory-wall">
                   {memories.map((memory, index) => (
                     <motion.button
                       key={`${memory.title}-${memory.src}`}
                       className="memory-card"
+                      onMouseMove={(e) => handleCardTilt(e, e.currentTarget)}
+                      onMouseLeave={(e) => handleCardReset(e.currentTarget)}
+                      onTouchMove={(e) => handleCardTilt(e, e.currentTarget)}
+                      onTouchEnd={(e) => handleCardReset(e.currentTarget)}
                       onClick={() => {
                         setActiveMemory(memory);
                       }}
@@ -398,9 +568,27 @@ function App() {
                     </motion.button>
                   ))}
                 </div>
-              )}
+              </div>
+            </section>
 
-              {scene === 3 && (
+            {/* Section 03: The Blooming Garden */}
+            <section className="stage garden-stage" data-section-index="3">
+              <div className="copy-column">
+                <p className="eyebrow">{chapters[2].eyebrow}</p>
+                <MaskedText text={chapters[2].title} className="stage-title" />
+                <p className="chapter-copy">{chapters[2].copy}</p>
+                
+                <motion.button
+                  className="primary-action"
+                  onClick={handleToPrism}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  {chapters[2].cta}
+                  <ArrowRight size={18} />
+                </motion.button>
+              </div>
+
+              <div className="art-column">
                 <div
                   className="garden-panel"
                   onMouseDown={handleGardenTouch}
@@ -422,7 +610,6 @@ function App() {
                       animate={{ scale: [0, 1.15, 0.9], opacity: [0, 1, 0], rotate: 45 }}
                       transition={{ duration: 2.2, delay: mark.delay, ease: 'easeOut' }}
                     >
-                      {/* Detailed beautiful blooming rose SVG inside touch bloom marks */}
                       <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="var(--rose-gold)" strokeWidth="1.2">
                         <circle cx="12" cy="12" r="3.5" fill="rgba(251, 113, 133, 0.18)" />
                         <path d="M12 2C9.5 2 9.5 7 12 7C14.5 7 14.5 2 12 2Z" fill="rgba(252, 211, 77, 0.08)" />
@@ -457,10 +644,27 @@ function App() {
                   <Heart className="garden-heart" size={62} />
                   <p>Tap to grow a wish</p>
                 </div>
-              )}
+              </div>
+            </section>
 
-              {/* NEW SECTION Chapter 04 / The 3D Photo Prism with Urdu/Hindi Love Couplets */}
-              {scene === 4 && (
+            {/* Section 04: The 3D Photo Prism */}
+            <section className="stage prism-stage" data-section-index="4">
+              <div className="copy-column">
+                <p className="eyebrow">{chapters[3].eyebrow}</p>
+                <MaskedText text={chapters[3].title} className="stage-title" />
+                <p className="chapter-copy">{chapters[3].copy}</p>
+                
+                <motion.button
+                  className="primary-action"
+                  onClick={handleToWish}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  {chapters[3].cta}
+                  <ArrowRight size={18} />
+                </motion.button>
+              </div>
+
+              <div className="art-column">
                 <div 
                   className="prism-section"
                   onTouchStart={handlePrismStart}
@@ -565,9 +769,28 @@ function App() {
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
+            </section>
 
-              {scene === 5 && (
+            {/* Section 05: The Birthday Star / Make a wish */}
+            <section className="stage wish-stage" data-section-index="5">
+              <div className="copy-column">
+                <p className="eyebrow">{chapters[4].eyebrow}</p>
+                <MaskedText text={chapters[4].title} className="stage-title" />
+                <p className="chapter-copy">{chapters[4].copy}</p>
+                
+                {/* CLIMAX BUTTON AT THE VERY END OF ALL SCROLL SECTIONS */}
+                <motion.button
+                  className="primary-action"
+                  onClick={revealFinale}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  {chapters[4].cta}
+                  <Star size={18} />
+                </motion.button>
+              </div>
+
+              <div className="art-column">
                 <motion.div
                   className="wish-orb"
                   animate={{
@@ -594,12 +817,10 @@ function App() {
                   ))}
                   <Sparkles className="orb-spark" size={42} />
                 </motion.div>
-              )}
-            </div>
-          </motion.section>
-        )}
-
-        {scene === 6 && (
+              </div>
+            </section>
+          </div>
+        ) : (
           <motion.section
             key="finale"
             className="finale"
@@ -629,7 +850,7 @@ function App() {
 
               <div className="final-copy">
                 <p className="eyebrow">For your birthday</p>
-                <h1>Happy Birthday, My Love</h1>
+                <MaskedText text="Happy Birthday, My Love" className="final-title" />
                 <p>
                   I hope this year meets you with the same tenderness you give the world.
                   May it bring you mornings that feel peaceful, evenings that feel safe,
@@ -649,51 +870,6 @@ function App() {
           </motion.section>
         )}
       </AnimatePresence>
-
-      {/* PERSISTENT GLASSMORPHIC BOTTOM NAVIGATION BAR */}
-      {/* Kept at absolute bottom bar, providing modern native iOS flow */}
-      {scene < 6 && (
-        <div className="bottom-navigation-bar">
-          <div className="scene-meter">
-            {chapters.map((item, index) => (
-              <span
-                key={item.eyebrow}
-                className={index + 1 <= scene ? 'is-lit' : ''}
-                aria-label={`Scene ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          {scene === 1 ? (
-            <motion.button
-              className="primary-action"
-              onClick={beginExperience}
-              whileTap={{ scale: 0.96 }}
-            >
-              {chapter.cta}
-              <ArrowRight size={18} />
-            </motion.button>
-          ) : scene === 5 ? (
-            <motion.button
-              className="primary-action"
-              onClick={revealFinale}
-              whileTap={{ scale: 0.96 }}
-            >
-              {chapter.cta}
-              <Star size={18} />
-            </motion.button>
-          ) : (
-            <motion.button
-              className="primary-action"
-              onClick={advance}
-              whileTap={{ scale: 0.96 }}
-            >
-              {chapter.cta}
-              <ArrowRight size={18} />
-            </motion.button>
-          )}
-        </div>
-      )}
     </main>
   );
 }
