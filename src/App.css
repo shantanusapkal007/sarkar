@@ -779,8 +779,8 @@ figure {
 
   .memory-wall {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-height: 48vh;
-    overflow-y: auto;
+    max-height: none;
+    overflow: visible;
     padding: 4px 2px 16px;
   }
 
