@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Gift, Heart, Sparkles, Star } from 'lucide-react';
 import gsap from 'gsap';
@@ -14,10 +14,10 @@ const PHOTOS = {
   garden: '/photo_2026-06-02_15-23-07.jpg',
   sunlight: '/photo_2026-06-02_15-23-08.jpg',
   mirror: '/photo_2026-06-02_15-23-11.jpg',
-  mirrorEcho: '/photo_2026-06-02_15-23-16.jpg',
   close: '/photo_2026-06-02_15-23-19.jpg',
 };
 
+// 6 Unique Photos (no duplicates)
 const PHOTO_LIST = [
   PHOTOS.birthday,
   PHOTOS.garden,
@@ -25,7 +25,6 @@ const PHOTO_LIST = [
   PHOTOS.sunlight,
   PHOTOS.mirror,
   PHOTOS.close,
-  PHOTOS.mirrorEcho,
 ];
 
 const chapters = [
@@ -50,11 +49,19 @@ const chapters = [
     title: 'Wherever your smile lands, something starts to bloom.',
     copy:
       'A birthday should feel alive. Touch the garden and let the page answer you with petals, golden sparks, and words that float like tiny blessings.',
-    cta: 'Take me to the wish',
+    cta: 'Enter the 3D Sanctuary',
     backdrop: PHOTOS.sunlight,
   },
   {
-    eyebrow: '04 / The Birthday Star',
+    eyebrow: '04 / The 3D Photo Prism',
+    title: 'Every angle reveals another beautiful facet of you.',
+    copy:
+      'Drag your finger across the crystal prism. Each rotation reflects a different side of your story, showing how one soul can hold an entire universe of lights.',
+    cta: 'Ascend to the wish',
+    backdrop: PHOTOS.tender,
+  },
+  {
+    eyebrow: '05 / The Birthday Star',
     title: 'Make one wish. I will make the rest into a prayer.',
     copy:
       'May this year protect your heart, multiply your joy, surprise you gently, and return to you every ounce of love you give so freely.',
@@ -106,13 +113,6 @@ const memories = [
       'A bright little portrait of confidence, softness, and the beautiful chaos of real life.',
     src: PHOTOS.close,
   },
-  {
-    title: 'The Echo',
-    label: 'Again, because it matters',
-    note:
-      'Some moments deserve to appear twice, like a favorite line in a song.',
-    src: PHOTOS.mirrorEcho,
-  },
 ];
 
 function App() {
@@ -124,9 +124,15 @@ function App() {
   const [triggerExplosion, setTriggerExplosion] = useState(false);
   const [userTouch, setUserTouch] = useState(null);
   const artworkRef = useRef(null);
+  
+  // 3D Prism Refs
+  const prismRef = useRef(null);
+  const isDraggingPrism = useRef(false);
+  const startX = useRef(0);
+  const currentRotationY = useRef(0);
 
   const chapter = chapters[Math.max(0, scene - 1)] || chapters[chapters.length - 1];
-  const backdrop = scene < 5 ? chapter.backdrop : PHOTOS.birthday;
+  const backdrop = scene < 6 ? chapter.backdrop : PHOTOS.birthday;
 
   const floatingWords = useMemo(
     () => ['softness', 'light', 'laughter', 'courage', 'home', 'grace', 'forever'],
@@ -136,13 +142,11 @@ function App() {
   const beginExperience = () => {
     audioEngine.init();
     setAudioActive(true);
-    audioEngine.playChime(5);
     setScene(2);
   };
 
   const advance = () => {
-    audioEngine.playChime(scene + 3);
-    setScene((current) => Math.min(current + 1, 5));
+    setScene((current) => Math.min(current + 1, 6));
   };
 
   const handleArtworkMove = (event) => {
@@ -191,7 +195,39 @@ function App() {
 
     setUserTouch({ x: clientX, y: clientY, time: Date.now() });
     setGardenMarks((items) => [...items.slice(-18), mark]);
-    audioEngine.playChime(Math.floor(Math.random() * 8));
+  };
+
+  // 3D Photo Prism Drag Helpers
+  const handlePrismStart = (event) => {
+    isDraggingPrism.current = true;
+    startX.current = event.touches?.[0]?.clientX ?? event.clientX;
+  };
+
+  const handlePrismMove = (event) => {
+    if (!isDraggingPrism.current || !prismRef.current) return;
+    const clientX = event.touches?.[0]?.clientX ?? event.clientX;
+    const deltaX = clientX - startX.current;
+    
+    // Smooth Y rotation rotation sweep based on horizontal drags
+    const targetRotation = currentRotationY.current + deltaX * 0.6;
+    
+    gsap.to(prismRef.current, {
+      rotateY: targetRotation,
+      transformPerspective: 1200,
+      duration: 0.4,
+      ease: 'power2.out'
+    });
+  };
+
+  const handlePrismEnd = () => {
+    if (!isDraggingPrism.current) return;
+    isDraggingPrism.current = false;
+    
+    // Save rotation index state
+    if (prismRef.current) {
+      const computedRotation = gsap.getProperty(prismRef.current, "rotateY") || 0;
+      currentRotationY.current = computedRotation;
+    }
   };
 
   const revealFinale = () => {
@@ -200,7 +236,7 @@ function App() {
     audioEngine.playClimaxSwell();
 
     setTimeout(() => {
-      setScene(5);
+      setScene(6); // Final Section is now Scene 6
       setTriggerExplosion(false);
       audioEngine.fadeToSilence();
     }, 5400);
@@ -231,7 +267,8 @@ function App() {
       <div className="aurora aurora-two" />
       <div className="paper-grain" />
 
-      <DreamCanvas scene={triggerExplosion ? 6 : scene} triggerExplosion={triggerExplosion} userTouch={userTouch} />
+      {/* Synchronize Scene 6 climax inside Canvas particle overlays */}
+      <DreamCanvas scene={triggerExplosion ? 6 : (scene === 6 ? 7 : scene)} triggerExplosion={triggerExplosion} userTouch={userTouch} />
       <MuteToggle audioActive={audioActive} />
 
       <AnimatePresence>
@@ -264,7 +301,7 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        {scene < 5 && (
+        {scene < 6 && (
           <motion.section
             key={scene}
             className="stage"
@@ -325,7 +362,7 @@ function App() {
                   {chapter.cta}
                   <ArrowRight size={18} />
                 </motion.button>
-              ) : scene === 4 ? (
+              ) : scene === 5 ? (
                 <motion.button
                   className="primary-action"
                   onClick={revealFinale}
@@ -401,7 +438,6 @@ function App() {
                       key={`${memory.title}-${memory.src}`}
                       className={`memory-card card-${index}`}
                       onClick={() => {
-                        audioEngine.playChime(index + 1);
                         setActiveMemory(memory);
                       }}
                       initial={{ opacity: 0, y: 30, rotate: index % 2 ? 2.5 : -2.5 }}
@@ -466,7 +502,112 @@ function App() {
                 </div>
               )}
 
+              {/* NEW SECTION Chapter 04 / The 3D Photo Prism */}
               {scene === 4 && (
+                <div 
+                  className="prism-section"
+                  onTouchStart={handlePrismStart}
+                  onTouchMove={handlePrismMove}
+                  onTouchEnd={handlePrismEnd}
+                  onMouseDown={handlePrismStart}
+                  onMouseMove={handlePrismMove}
+                  onMouseUp={handlePrismEnd}
+                  onMouseLeave={handlePrismEnd}
+                  style={{
+                    width: '100%',
+                    height: '350px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    perspective: '1200px',
+                    overflow: 'visible',
+                    touchAction: 'none'
+                  }}
+                >
+                  <div
+                    ref={prismRef}
+                    className="prism-3d-wrapper"
+                    style={{
+                      width: '200px',
+                      height: '270px',
+                      position: 'relative',
+                      transformStyle: 'preserve-3d',
+                      cursor: 'grab'
+                    }}
+                  >
+                    {/* Floating Panel 1 (0 deg) */}
+                    <div 
+                      className="glass-panel prism-face"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        transform: 'rotateY(0deg) translateZ(130px)',
+                        transformStyle: 'preserve-3d',
+                        backfaceVisibility: 'hidden',
+                        padding: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '16px'
+                      }}
+                    >
+                      <div className="dream-frame" style={{ width: '100%', height: '80%', overflow: 'hidden' }}>
+                        {renderImage(PHOTOS.sunlight, 'Prism Face 1')}
+                      </div>
+                      <strong style={{ fontSize: '0.8rem', letterSpacing: '0.15em', textAlign: 'center', fontFamily: 'var(--font-serif)', color: 'var(--champagne-gold)' }}>I. RADIANCE</strong>
+                    </div>
+
+                    {/* Floating Panel 2 (120 deg) */}
+                    <div 
+                      className="glass-panel prism-face"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        transform: 'rotateY(120deg) translateZ(130px)',
+                        transformStyle: 'preserve-3d',
+                        backfaceVisibility: 'hidden',
+                        padding: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '16px'
+                      }}
+                    >
+                      <div className="dream-frame" style={{ width: '100%', height: '80%', overflow: 'hidden' }}>
+                        {renderImage(PHOTOS.close, 'Prism Face 2')}
+                      </div>
+                      <strong style={{ fontSize: '0.8rem', letterSpacing: '0.15em', textAlign: 'center', fontFamily: 'var(--font-serif)', color: 'var(--champagne-gold)' }}>II. WILD SOUL</strong>
+                    </div>
+
+                    {/* Floating Panel 3 (240 deg) */}
+                    <div 
+                      className="glass-panel prism-face"
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        transform: 'rotateY(240deg) translateZ(130px)',
+                        transformStyle: 'preserve-3d',
+                        backfaceVisibility: 'hidden',
+                        padding: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '16px'
+                      }}
+                    >
+                      <div className="dream-frame" style={{ width: '100%', height: '80%', overflow: 'hidden' }}>
+                        {renderImage(PHOTOS.birthday, 'Prism Face 3')}
+                      </div>
+                      <strong style={{ fontSize: '0.8rem', letterSpacing: '0.15em', textAlign: 'center', fontFamily: 'var(--font-serif)', color: 'var(--champagne-gold)' }}>III. CHOSEN</strong>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {scene === 5 && (
                 <motion.div
                   className="wish-orb"
                   animate={{
@@ -498,7 +639,7 @@ function App() {
           </motion.section>
         )}
 
-        {scene === 5 && (
+        {scene === 6 && (
           <motion.section
             key="finale"
             className="finale"
