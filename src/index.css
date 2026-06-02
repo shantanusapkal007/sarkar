@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@200;300;400;500;600&display=swap');
+
+:root {
+  /* Luxury Color Palette (HSL) */
+  --bg-midnight: hsl(230, 45%, 6%);
+  --bg-midnight-gradient: radial-gradient(circle at center, hsl(225, 45%, 10%) 0%, hsl(240, 50%, 4%) 100%);
+  --champagne-gold: hsl(38, 70%, 75%);
+  --champagne-gold-glow: hsl(38, 70%, 75%, 0.4);
+  --moonlight-silver: hsl(210, 15%, 85%);
+  --lavender-mist: hsl(270, 30%, 80%);
+  --soft-ivory: hsl(40, 40%, 96%);
+  --white-glow: rgba(255, 255, 255, 0.15);
+  
+  /* Fonts */
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Inter', sans-serif;
+  
+  /* Utilities */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-blur: blur(12px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-midnight);
+  font-family: var(--font-sans);
+  color: var(--moonlight-silver);
+  font-size: 16px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Beautiful custom selections */
+::selection {
+  background: var(--champagne-gold-glow);
+  color: var(--soft-ivory);
+}
+
+/* Hide native scrollbars strictly */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ethereal Glow Classes */
+.glow-text {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px var(--champagne-gold-glow);
+}
+
+.gold-glow-text {
+  color: var(--champagne-gold);
+  text-shadow: 0 0 8px var(--champagne-gold-glow);
+}
+
+/* Cinematic Dream Canvas container */
+.canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Luxury Glass Cards */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-glow);
+  border-radius: 20px;
+}
+
+/* Ambient Radial Blur Lights in background */
+.ambient-light {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.15;
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+
+.ambient-gold {
+  background: var(--champagne-gold);
+  width: 250px;
+  height: 250px;
+}
+
+.ambient-lavender {
+  background: var(--lavender-mist);
+  width: 300px;
+  height: 300px;
+}
+
+/* Typography styles */
+.poem-title {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--soft-ivory);
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.poem-line {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--moonlight-silver);
+  text-align: center;
+}
+
+.sub-text {
+  font-family: var(--font-sans);
+  font-weight: 200;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--lavender-mist);
+  text-align: center;
+}
+
+/* Button & interactive components */
+.star-btn {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Custom visual frames for discovered images */
+.dream-frame {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dream-frame::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.3) 100%);
+  pointer-events: none;
+}
