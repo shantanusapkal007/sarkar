@@ -54,7 +54,7 @@
     linear-gradient(135deg, #140009 0%, #310714 48%, #080306 100%);
 }
 
-.birthday-site.scene-5 {
+.birthday-site.scene-6 {
   background:
     radial-gradient(circle at 24% 12%, rgba(164, 56, 76, 0.14), transparent 30%),
     linear-gradient(140deg, #fbf6ee 0%, #f2dfd4 54%, #e7c8cf 100%);
@@ -81,7 +81,7 @@
   transform: scale(1.08);
 }
 
-.scene-5 .scene-photo-bg {
+.scene-6 .scene-photo-bg {
   opacity: 0.15;
   filter: blur(22px) saturate(0.72);
 }
@@ -405,13 +405,11 @@ figure {
   line-height: 1.08;
 }
 
-.card-0,
-.card-1 {
+.memory-card {
   min-height: 210px;
 }
 
-.card-0 div,
-.card-1 div {
+.memory-card div {
   height: 138px;
 }
 
@@ -780,15 +778,11 @@ figure {
     padding: 4px 2px 16px;
   }
 
-  .memory-card,
-  .card-0,
-  .card-1 {
+  .memory-card {
     min-height: 176px;
   }
 
-  .memory-card div,
-  .card-0 div,
-  .card-1 div {
+  .memory-card div {
     height: 104px;
   }
 
@@ -904,4 +898,58 @@ figure {
 .prism-face:hover img {
   transform: scale(1.06);
 }
+
+/* Persistent Glassmorphic Bottom Navigation Bar Styles */
+.bottom-navigation-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 22px min(8vw, 64px) max(22px, env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(9, 1, 5, 0.96) 0%, rgba(9, 1, 5, 0.8) 60%, rgba(9, 1, 5, 0) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  z-index: 45;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Adapt bottom bar style beautifully in the warm ivory finale */
+.scene-6 .bottom-navigation-bar {
+  background: linear-gradient(to top, rgba(251, 246, 238, 0.98) 0%, rgba(251, 246, 238, 0.85) 60%, rgba(251, 246, 238, 0) 100%);
+  border-top: 1px solid rgba(62, 38, 48, 0.06);
+}
+
+/* Ensure copy column does not overflow behind the bottom bar */
+.copy-column {
+  margin-bottom: 96px;
+}
+
+@media (max-width: 940px) {
+  .copy-column {
+    margin-bottom: 34px; /* stage padding offsets enough in wrapped grids */
+  }
+}
+
+@media (max-width: 640px) {
+  .bottom-navigation-bar {
+    padding: 16px 20px max(18px, env(safe-area-inset-bottom));
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  
+  .bottom-navigation-bar .primary-action {
+    width: 100%;
+  }
+
+  .bottom-navigation-bar .scene-meter {
+    width: 100%;
+    margin-top: 4px;
+  }
+}
+
 

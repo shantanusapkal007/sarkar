@@ -189,8 +189,8 @@ function App() {
       id: `${Date.now()}-${Math.random()}`,
       x: clientX - rect.left,
       y: clientY - rect.top,
-      size: Math.floor(Math.random() * 54) + 46,
-      delay: Math.random() * 0.16,
+      size: Math.floor(Math.random() * 40) + 38,
+      delay: Math.random() * 0.12,
     };
 
     setUserTouch({ x: clientX, y: clientY, time: Date.now() });
@@ -334,59 +334,6 @@ function App() {
               >
                 {chapter.copy}
               </motion.p>
-
-              <motion.div
-                className="scene-meter"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.58 }}
-              >
-                {chapters.map((item, index) => (
-                  <span
-                    key={item.eyebrow}
-                    className={index + 1 <= scene ? 'is-lit' : ''}
-                    aria-label={`Scene ${index + 1}`}
-                  />
-                ))}
-              </motion.div>
-
-              {scene === 1 ? (
-                <motion.button
-                  className="primary-action"
-                  onClick={beginExperience}
-                  whileTap={{ scale: 0.96 }}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.72 }}
-                >
-                  {chapter.cta}
-                  <ArrowRight size={18} />
-                </motion.button>
-              ) : scene === 5 ? (
-                <motion.button
-                  className="primary-action"
-                  onClick={revealFinale}
-                  whileTap={{ scale: 0.96 }}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.72 }}
-                >
-                  {chapter.cta}
-                  <Star size={18} />
-                </motion.button>
-              ) : (
-                <motion.button
-                  className="primary-action"
-                  onClick={advance}
-                  whileTap={{ scale: 0.96 }}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.72 }}
-                >
-                  {chapter.cta}
-                  <ArrowRight size={18} />
-                </motion.button>
-              )}
             </div>
 
             <div className="art-column">
@@ -436,7 +383,7 @@ function App() {
                   {memories.map((memory, index) => (
                     <motion.button
                       key={`${memory.title}-${memory.src}`}
-                      className={`memory-card card-${index}`}
+                      className="memory-card"
                       onClick={() => {
                         setActiveMemory(memory);
                       }}
@@ -466,15 +413,25 @@ function App() {
                       key={mark.id}
                       className="garden-bloom"
                       style={{
-                        left: mark.x,
-                        top: mark.y,
+                        left: mark.x - mark.size/2,
+                        top: mark.y - mark.size/2,
                         width: mark.size,
                         height: mark.size,
                       }}
                       initial={{ scale: 0, opacity: 0, rotate: -35 }}
-                      animate={{ scale: [0, 1.15, 0.9], opacity: [0, 1, 0], rotate: 35 }}
-                      transition={{ duration: 2.5, delay: mark.delay, ease: 'easeOut' }}
-                    />
+                      animate={{ scale: [0, 1.15, 0.9], opacity: [0, 1, 0], rotate: 45 }}
+                      transition={{ duration: 2.2, delay: mark.delay, ease: 'easeOut' }}
+                    >
+                      {/* Detailed beautiful blooming rose SVG inside touch bloom marks */}
+                      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="var(--rose-gold)" strokeWidth="1.2">
+                        <circle cx="12" cy="12" r="3.5" fill="rgba(251, 113, 133, 0.18)" />
+                        <path d="M12 2C9.5 2 9.5 7 12 7C14.5 7 14.5 2 12 2Z" fill="rgba(252, 211, 77, 0.08)" />
+                        <path d="M12 22C9.5 22 9.5 17 12 17C14.5 17 14.5 22 12 22Z" fill="rgba(252, 211, 77, 0.08)" />
+                        <path d="M2 12C2 9.5 7 9.5 7 12C7 14.5 2 14.5 2 12Z" fill="rgba(252, 211, 77, 0.08)" />
+                        <path d="M22 12C22 9.5 17 9.5 17 12C17 14.5 22 14.5 22 12Z" fill="rgba(252, 211, 77, 0.08)" />
+                        <circle cx="12" cy="12" r="1.2" fill="var(--champagne-gold)" />
+                      </svg>
+                    </motion.span>
                   ))}
                   {floatingWords.map((word, index) => (
                     <motion.span
@@ -502,7 +459,7 @@ function App() {
                 </div>
               )}
 
-              {/* NEW SECTION Chapter 04 / The 3D Photo Prism */}
+              {/* NEW SECTION Chapter 04 / The 3D Photo Prism with Urdu/Hindi Love Couplets */}
               {scene === 4 && (
                 <div 
                   className="prism-section"
@@ -515,7 +472,7 @@ function App() {
                   onMouseLeave={handlePrismEnd}
                   style={{
                     width: '100%',
-                    height: '350px',
+                    height: '370px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -528,80 +485,83 @@ function App() {
                     ref={prismRef}
                     className="prism-3d-wrapper"
                     style={{
-                      width: '200px',
-                      height: '270px',
+                      width: '210px',
+                      height: '290px',
                       position: 'relative',
                       transformStyle: 'preserve-3d',
                       cursor: 'grab'
                     }}
                   >
-                    {/* Floating Panel 1 (0 deg) */}
+                    {/* Panel 1 (0 deg) */}
                     <div 
                       className="glass-panel prism-face"
                       style={{
                         position: 'absolute',
                         inset: 0,
-                        transform: 'rotateY(0deg) translateZ(130px)',
+                        transform: 'rotateY(0deg) translateZ(135px)',
                         transformStyle: 'preserve-3d',
-                        backfaceVisibility: 'hidden',
-                        padding: '12px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        border: '1.5px solid rgba(255, 255, 255, 0.12)',
-                        borderRadius: '16px'
+                        backfaceVisibility: 'hidden'
                       }}
                     >
-                      <div className="dream-frame" style={{ width: '100%', height: '80%', overflow: 'hidden' }}>
+                      <div className="dream-frame" style={{ width: '100%', height: '62%' }}>
                         {renderImage(PHOTOS.sunlight, 'Prism Face 1')}
                       </div>
-                      <strong style={{ fontSize: '0.8rem', letterSpacing: '0.15em', textAlign: 'center', fontFamily: 'var(--font-serif)', color: 'var(--champagne-gold)' }}>I. RADIANCE</strong>
+                      <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
+                          "तुम हँसो तो ये कायनात मुस्कुराए"
+                        </span>
+                        <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                          Tum hansdo toh yeh kaaynaat muskuraaye
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Floating Panel 2 (120 deg) */}
+                    {/* Panel 2 (120 deg) */}
                     <div 
                       className="glass-panel prism-face"
                       style={{
                         position: 'absolute',
                         inset: 0,
-                        transform: 'rotateY(120deg) translateZ(130px)',
+                        transform: 'rotateY(120deg) translateZ(135px)',
                         transformStyle: 'preserve-3d',
-                        backfaceVisibility: 'hidden',
-                        padding: '12px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        border: '1.5px solid rgba(255, 255, 255, 0.12)',
-                        borderRadius: '16px'
+                        backfaceVisibility: 'hidden'
                       }}
                     >
-                      <div className="dream-frame" style={{ width: '100%', height: '80%', overflow: 'hidden' }}>
+                      <div className="dream-frame" style={{ width: '100%', height: '62%' }}>
                         {renderImage(PHOTOS.close, 'Prism Face 2')}
                       </div>
-                      <strong style={{ fontSize: '0.8rem', letterSpacing: '0.15em', textAlign: 'center', fontFamily: 'var(--font-serif)', color: 'var(--champagne-gold)' }}>II. WILD SOUL</strong>
+                      <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.98rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
+                          "हज़ार मौसम बदले मगर सादगी बेमिसाल रही"
+                        </span>
+                        <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                          Hazaar mausam badle, saadgi bemisaal rahi
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Floating Panel 3 (240 deg) */}
+                    {/* Panel 3 (240 deg) */}
                     <div 
                       className="glass-panel prism-face"
                       style={{
                         position: 'absolute',
                         inset: 0,
-                        transform: 'rotateY(240deg) translateZ(130px)',
+                        transform: 'rotateY(240deg) translateZ(135px)',
                         transformStyle: 'preserve-3d',
-                        backfaceVisibility: 'hidden',
-                        padding: '12px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        border: '1.5px solid rgba(255, 255, 255, 0.12)',
-                        borderRadius: '16px'
+                        backfaceVisibility: 'hidden'
                       }}
                     >
-                      <div className="dream-frame" style={{ width: '100%', height: '80%', overflow: 'hidden' }}>
+                      <div className="dream-frame" style={{ width: '100%', height: '62%' }}>
                         {renderImage(PHOTOS.birthday, 'Prism Face 3')}
                       </div>
-                      <strong style={{ fontSize: '0.8rem', letterSpacing: '0.15em', textAlign: 'center', fontFamily: 'var(--font-serif)', color: 'var(--champagne-gold)' }}>III. CHOSEN</strong>
+                      <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.98rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
+                          "तेरी सादगी में ही मेरा सारा जहां बसता है"
+                        </span>
+                        <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                          Teri saadgi mein hi mera saara jahan basta hai
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -689,6 +649,51 @@ function App() {
           </motion.section>
         )}
       </AnimatePresence>
+
+      {/* PERSISTENT GLASSMORPHIC BOTTOM NAVIGATION BAR */}
+      {/* Kept at absolute bottom bar, providing modern native iOS flow */}
+      {scene < 6 && (
+        <div className="bottom-navigation-bar">
+          <div className="scene-meter">
+            {chapters.map((item, index) => (
+              <span
+                key={item.eyebrow}
+                className={index + 1 <= scene ? 'is-lit' : ''}
+                aria-label={`Scene ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {scene === 1 ? (
+            <motion.button
+              className="primary-action"
+              onClick={beginExperience}
+              whileTap={{ scale: 0.96 }}
+            >
+              {chapter.cta}
+              <ArrowRight size={18} />
+            </motion.button>
+          ) : scene === 5 ? (
+            <motion.button
+              className="primary-action"
+              onClick={revealFinale}
+              whileTap={{ scale: 0.96 }}
+            >
+              {chapter.cta}
+              <Star size={18} />
+            </motion.button>
+          ) : (
+            <motion.button
+              className="primary-action"
+              onClick={advance}
+              whileTap={{ scale: 0.96 }}
+            >
+              {chapter.cta}
+              <ArrowRight size={18} />
+            </motion.button>
+          )}
+        </div>
+      )}
     </main>
   );
 }
