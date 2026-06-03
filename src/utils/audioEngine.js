@@ -6,6 +6,7 @@ class DreamAudioEngine {
   constructor() {
     this.ctx = null;
     this.isMuted = false;
+    this.pausedForVideo = false;
     
     // Background MP3 lofi track
     this.bgAudio = new Audio('/bg_music.mp3');
@@ -78,6 +79,24 @@ class DreamAudioEngine {
         this.bgAudio.pause();
       }
     }, 150);
+  }
+
+  // Pause BGM when playing sunshine video
+  pauseForVideo() {
+    if (this.bgAudio && !this.bgAudio.paused) {
+      this.bgAudio.pause();
+      this.pausedForVideo = true;
+    }
+  }
+
+  // Resume BGM after navigating away from video
+  resumeAfterVideo() {
+    if (this.pausedForVideo && !this.isMuted) {
+      this.bgAudio.play().catch(err => {
+        console.log("Audio resume error: ", err);
+      });
+      this.pausedForVideo = false;
+    }
   }
 }
 

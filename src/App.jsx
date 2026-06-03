@@ -201,13 +201,44 @@ function App() {
   const [userTouch, setUserTouch] = useState(null);
   const artworkRef = useRef(null);
   
+  // Custom video player states
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [videoMuted, setVideoMuted] = useState(false);
+  const [videoLoading, setVideoLoading] = useState(true);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  
+  const videoRef = useRef(null);
+  const controlsTimeoutRef = useRef(null);
+
   // 3D Prism Refs
   const prismRef = useRef(null);
   const isDraggingPrism = useRef(false);
   const startX = useRef(0);
   const currentRotationY = useRef(0);
 
-  // Smooth 3D Card Hover / Touch Coordinates Tilt depth binding
+  // Scroll to top effect on scene transitions
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [scene]);
+
+  // Sync background music with video scene
+  useEffect(() => {
+    if (scene === 5) {
+      audioEngine.pauseForVideo();
+      // Ensure video loads cleanly and automatically starts playing when scene mounts
+      if (videoRef.current) {
+        setVideoLoading(true);
+        videoRef.current.load();
+      }
+    } else {
+      audioEngine.resumeAfterVideo();
+      setIsPlaying(false);
+    }
+  }, [scene]);
+
+  // Smooth 3D Card Tilt coordinate binding
   const handleCardTilt = (event, element) => {
     const rect = element.getBoundingClientRect();
     const clientX = event.touches?.[0]?.clientX ?? event.clientX;
@@ -239,11 +270,6 @@ function App() {
 
   const chapter = chapters[Math.max(0, scene - 1)] || chapters[chapters.length - 1];
   const backdrop = scene < 7 ? chapter.backdrop : PHOTOS.birthday;
-
-  // Open website at the top when scene transitions
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [scene]);
 
   const floatingWords = useMemo(
     () => ['softness', 'light', 'laughter', 'courage', 'home', 'grace', 'forever'],
@@ -319,7 +345,7 @@ function App() {
     const clientX = event.touches?.[0]?.clientX ?? event.clientX;
     const deltaX = clientX - startX.current;
     
-    // Smooth Y rotation rotation sweep based on horizontal drags
+    // Smooth Y rotation sweep based on horizontal drags
     const targetRotation = currentRotationY.current + deltaX * 0.6;
     
     gsap.to(prismRef.current, {
@@ -340,6 +366,58 @@ function App() {
       currentRotationY.current = computedRotation;
     }
   };
+
+  // Custom Video Control Actions
+  const handlePlayPause = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleSeek = (e) => {
+    if (!videoRef.current) return;
+    const newTime = parseFloat(e.target.value);
+    videoRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleToggleMute = () => {
+    if (!videoRef.current) return;
+    videoRef.current.muted = !videoMuted;
+    setVideoMuted(!videoMuted);
+  };
+
+  const formatTime = (timeInSeconds) => {
+    if (isNaN(timeInSeconds)) return '0:00';
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = Math.floor(timeInSeconds % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const triggerShowControls = () => {
+    setControlsVisible(true);
+    if (controlsTimeoutRef.current) {
+      clearTimeout(controlsTimeoutRef.current);
+    }
+    controlsTimeoutRef.current = setTimeout(() => {
+      if (videoRef.current && !videoRef.current.paused) {
+        setControlsVisible(false);
+      }
+    }, 2800);
+  };
+
+  useEffect(() => {
+    triggerShowControls();
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPlaying]);
 
   const revealFinale = () => {
     if (triggerExplosion) return;
@@ -692,20 +770,113 @@ function App() {
                 </div>
               )}
 
-              {/* NEW SECTION Chapter 05 / The Sunshine Reel Video Player */}
+              {/* NEW SECTION Chapter 05 / Custom Glassmorphic Video Player */}
               {scene === 5 && (
-                <div className="video-panel glass-panel">
+                <div 
+                  className="video-panel glass-panel"
+                  onMouseMove={triggerShowControls}
+                  onClick={triggerShowControls}
+                  onMouseLeave={() => isPlaying && setControlsVisible(false)}
+                >
                   <div className="video-wrapper">
                     <video
+                      ref={videoRef}
                       src="/video_2026-06-03_13-17-19.mp4"
-                      controls
+                      preload="auto"
+                      loop
                       playsInline
                       className="sunshine-video"
+                      onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
+                      onDurationChange={() => setDuration(videoRef.current?.duration || 0)}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      onWaiting={() => setVideoLoading(true)}
+                      onPlaying={() => setVideoLoading(false)}
+                      onCanPlay={() => setVideoLoading(false)}
+                      onClick={handlePlayPause}
                     />
+
+                    {/* Premium loading overlay */}
+                    {videoLoading && (
+                      <div className="video-loader-overlay">
+                        <motion.div 
+                          className="video-spinner"
+                          animate={{ rotate: 360 }}
+                          transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                        >
+                          <Sparkles size={24} className="loader-sparkle" />
+                        </motion.div>
+                        <span>Preloading Sunshine...</span>
+                      </div>
+                    )}
+
+                    {/* Glass controls bar overlay */}
+                    <AnimatePresence>
+                      {controlsVisible && (
+                        <motion.div 
+                          className="custom-video-controls"
+                          initial={{ opacity: 0, y: 15 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 15 }}
+                          transition={{ duration: 0.35, ease: "easeOut" }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="control-row-top">
+                            <input
+                              type="range"
+                              min="0"
+                              max={duration || 100}
+                              value={currentTime}
+                              onChange={handleSeek}
+                              className="video-seek-bar"
+                              style={{
+                                background: `linear-gradient(to right, var(--sky-blue) ${(currentTime / (duration || 1)) * 100}%, rgba(255,255,255,0.1) ${(currentTime / (duration || 1)) * 100}%)`
+                              }}
+                            />
+                          </div>
+                          <div className="control-row-bottom">
+                            <div className="controls-group-left">
+                              <button onClick={handlePlayPause} className="control-btn play-btn" aria-label={isPlaying ? "Pause" : "Play"}>
+                                {isPlaying ? (
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="6" y="4" width="4" height="16" rx="1" />
+                                    <rect x="14" y="4" width="4" height="16" rx="1" />
+                                  </svg>
+                                ) : (
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z" />
+                                  </svg>
+                                )}
+                              </button>
+                              <span className="video-time-display">
+                                {formatTime(currentTime)} / {formatTime(duration)}
+                              </span>
+                            </div>
+                            <div className="controls-group-right">
+                              <button onClick={handleToggleMute} className="control-btn mute-btn" aria-label={videoMuted ? "Unmute" : "Mute"}>
+                                {videoMuted ? (
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                                    <line x1="23" y1="9" x2="17" y2="15" />
+                                    <line x1="17" y1="9" x2="23" y2="15" />
+                                  </svg>
+                                ) : (
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                                  </svg>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                   <div className="video-overlay-text">
-                    <span>My Sunshine</span>
-                    <span>Play & Celebrate ☀️</span>
+                    <span>My Sunshine Reel</span>
+                    <span>Enjoy the music of your smile ☀️</span>
                   </div>
                 </div>
               )}
