@@ -574,7 +574,7 @@ function App() {
                   </motion.figure>
                   <div className="birthday-plaque">
                     <Gift size={18} />
-                    <span>Happy Birthday Rajkunwar, Sunshine of my life 🌎❤️</span>
+                    <span>Happy Birthday Rajkunwar, Sunshine of my life ❤️</span>
                   </div>
                 </motion.div>
               )}
@@ -884,11 +884,21 @@ function App() {
               {scene === 6 && (
                 <motion.div
                   className="wish-orb"
-                  animate={{
-                    scale: triggerExplosion ? [1, 1.26, 0.88, 1.06] : [1, 1.04, 1],
-                    rotate: triggerExplosion ? [0, 18, -10, 0] : [0, 3, -3, 0],
+                  onClick={revealFinale}
+                  style={{ cursor: 'pointer' }}
+                  animate={triggerExplosion ? {
+                    scale: [1, 1.3, 0],
+                    rotate: [0, 360],
+                    opacity: [1, 1, 0]
+                  } : {
+                    scale: [1, 1.04, 1],
+                    rotate: [0, 3, -3, 0],
                   }}
-                  transition={{ repeat: triggerExplosion ? 0 : Infinity, duration: triggerExplosion ? 2 : 4 }}
+                  transition={{ 
+                    duration: triggerExplosion ? 2.2 : 4, 
+                    ease: triggerExplosion ? "backIn" : "easeInOut", 
+                    repeat: triggerExplosion ? 0 : Infinity 
+                  }}
                 >
                   <div className="orb-core">
                     {renderImage(PHOTOS.birthday, 'Birthday wish portrait')}

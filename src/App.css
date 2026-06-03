@@ -51,15 +51,16 @@
   scroll-behavior: smooth;
   isolation: isolate;
   background:
-    radial-gradient(circle at 18% 18%, rgba(56, 189, 248, 0.12), transparent 30%),
-    radial-gradient(circle at 82% 22%, rgba(99, 102, 241, 0.12), transparent 35%),
-    linear-gradient(135deg, #020617 0%, #0b1528 50%, #02040a 100%);
+    radial-gradient(circle at 18% 18%, rgba(56, 189, 248, 0.14), transparent 35%),
+    radial-gradient(circle at 82% 22%, rgba(99, 102, 241, 0.14), transparent 35%),
+    linear-gradient(135deg, #020514 0%, #0a1124 50%, #020409 100%);
 }
 
 .birthday-site.scene-7 {
   background:
-    radial-gradient(circle at 24% 12%, rgba(56, 189, 248, 0.15), transparent 40%),
-    linear-gradient(140deg, #030712 0%, #0c1b33 55%, #010307 100%);
+    radial-gradient(circle at 24% 12%, rgba(56, 189, 248, 0.18), transparent 45%),
+    radial-gradient(circle at 76% 88%, rgba(99, 102, 241, 0.14), transparent 45%),
+    linear-gradient(140deg, #02040b 0%, #0b1429 55%, #010205 100%);
   color: var(--soft-ivory);
 }
 

@@ -99,7 +99,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           z: depth,
           alpha: Math.random() * 0.75 + 0.1,
           speed: (Math.random() * 0.012 + 0.004) * (depth * 0.5 + 0.5),
-          color: Math.random() > 0.45 ? '#ffffff' : '#38bdf8' // white or sky blue
+          color: Math.random() > 0.5 ? '#ffffff' : (Math.random() > 0.45 ? '#38bdf8' : '#bae6fd') // white, sky blue, or ice blue
         });
       }
     } else if (currentScene === 3) {
@@ -126,17 +126,23 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         });
       }
     } else if (currentScene === 7 || currentScene === 8) {
-      // Slow sky blue dust
-      for (let i = 0; i < 22; i++) {
+      // Slow sky blue dust and ice-blue glowing hearts
+      for (let i = 0; i < 28; i++) {
         const depth = Math.random();
+        const isHeart = Math.random() > 0.4;
         particlesRef.current.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          size: Math.random() * 2.2 + 0.4,
+          size: isHeart ? Math.random() * 4 + 4 : Math.random() * 2.2 + 0.4,
           z: depth,
           alpha: Math.random() * 0.65 + 0.15,
-          speedY: -(Math.random() * 0.18 + 0.04),
-          color: 'rgba(56, 189, 248, 0.32)'
+          speedY: -(Math.random() * 0.16 + 0.04),
+          isHeart,
+          pulse: Math.random() * 0.008 + 0.004,
+          pulseDir: 1,
+          color: isHeart
+            ? `rgba(186, 230, 253, ${Math.random() * 0.4 + 0.25})` // soft ice-blue hearts
+            : (Math.random() > 0.5 ? 'rgba(56, 189, 248, 0.32)' : 'rgba(6, 182, 212, 0.26)')
         });
       }
     }
@@ -210,7 +216,9 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         angle: angle,
         radius: 0,
         orbitSpeed: (Math.random() * 0.007 + 0.003) * (Math.random() > 0.5 ? 1 : -1),
-        color: Math.random() > 0.4 ? `rgba(56, 189, 248, ${Math.random() * 0.7 + 0.3})` : `rgba(186, 230, 253, ${Math.random() * 0.6 + 0.3})`
+        color: Math.random() > 0.4 
+          ? `rgba(56, 189, 248, ${Math.random() * 0.7 + 0.3})` 
+          : (Math.random() > 0.5 ? `rgba(186, 230, 253, ${Math.random() * 0.6 + 0.3})` : `rgba(6, 182, 212, ${Math.random() * 0.7 + 0.3})`)
       });
     }
   }
@@ -274,8 +282,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.beginPath();
           ctx.lineWidth = 1.2 - layer * 0.3;
           ctx.strokeStyle = layer === 0 
-            ? 'rgba(56, 189, 248, 0.15)'  // Sky Blue
-            : (layer === 1 ? 'rgba(6, 182, 212, 0.11)' : 'rgba(255, 255, 255, 0.07)'); // Cyan / Pearl
+            ? 'rgba(56, 189, 248, 0.18)'  // Sky Blue
+            : (layer === 1 ? 'rgba(6, 182, 212, 0.13)' : 'rgba(186, 230, 253, 0.09)'); // Cyan / Ice Blue
           
           const wavePhase = time * (0.8 + layer * 0.18) + layer * Math.PI * 0.45;
           ctx.moveTo(0, h * 0.55 + Math.sin(wavePhase) * 24);
@@ -419,8 +427,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         ripplesRef.current = ripplesRef.current.filter(r => {
           ctx.beginPath();
           ctx.arc(r.x, r.y, r.size * (2.2 - r.life), 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(56, 189, 248, ${r.life * 0.38})`;
-          ctx.shadowBlur = 9;
+          ctx.fillStyle = `rgba(56, 189, 248, ${r.life * 0.42})`;
+          ctx.shadowBlur = 16;
           ctx.shadowColor = '#38bdf8';
           ctx.fill();
           ctx.shadowBlur = 0; // reset
@@ -466,17 +474,44 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         });
       }
 
-      // Render Climax Stardust Explosion (Scene 7 & 8)
+      // Render Climax Stardust Explosion & Drifting Hearts (Scene 7 & 8)
       if (currentScene === 7 || currentScene === 8) {
         particlesRef.current = particlesRef.current.filter(p => {
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
           ctx.globalAlpha = p.alpha;
           
-          ctx.shadowBlur = 7;
-          ctx.shadowColor = '#38bdf8';
-          ctx.fill();
+          if (p.isHeart) {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            
+            p.alpha += p.pulse * p.pulseDir;
+            if (p.alpha > 0.85 || p.alpha < 0.2) {
+              p.pulseDir = -p.pulseDir;
+            }
+            
+            ctx.beginPath();
+            const hs = p.size;
+            ctx.moveTo(0, hs / 4);
+            ctx.quadraticCurveTo(0, 0, hs / 2, 0);
+            ctx.quadraticCurveTo(hs, 0, hs, hs / 3);
+            ctx.quadraticCurveTo(hs, hs * 2/3, 0, hs * 1.15);
+            ctx.quadraticCurveTo(-hs, hs * 2/3, -hs, hs / 3);
+            ctx.quadraticCurveTo(-hs, 0, -hs / 2, 0);
+            ctx.quadraticCurveTo(0, 0, 0, hs / 4);
+            ctx.closePath();
+            
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = 16;
+            ctx.shadowColor = 'rgba(56, 189, 248, 0.7)';
+            ctx.fill();
+            ctx.restore();
+          } else {
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = p.color;
+            ctx.fill();
+          }
           ctx.shadowBlur = 0; // reset
 
           if (p.orbit) {

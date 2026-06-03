@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@200;300;400;500;600&family=Pinyon+Script&display=swap');
 
 :root {
-  /* Premium Midnight Blue & Ice/Sky Blue Glass Color System */
+  /* Premium Midnight Blue & Ice/Sky Blue Glass Color System with Rose & Violet Accents */
   --bg-dark-blue: hsl(222, 47%, 4%);
   --bg-blue-gradient: radial-gradient(circle at center, hsl(217, 45%, 8%) 0%, hsl(222, 50%, 3%) 100%);
   
@@ -10,6 +10,12 @@
   --ice-blue: hsl(190, 80%, 75%); /* Lighter frosty blue */
   --ice-blue-glow: rgba(186, 230, 253, 0.35);
   --soft-ivory: hsl(210, 40%, 98%);
+  
+  /* Romantic Emojis and Glow Accents */
+  --rose-pink: hsl(340, 82%, 76%); /* Soft romantic rose pink */
+  --rose-pink-glow: rgba(244, 63, 94, 0.48);
+  --violet-glow: rgba(139, 92, 246, 0.4);
+  --romantic-accent: hsl(325, 80%, 65%);
   
   /* Fonts */
   --font-serif: 'Cormorant Garamond', serif;
@@ -194,8 +200,8 @@ html, body {
 
 .romantic-name {
   font-family: var(--font-romantic);
-  color: var(--sky-blue);
-  text-shadow: 0 0 10px var(--sky-blue-glow), 0 0 25px rgba(56, 189, 248, 0.25);
+  color: var(--rose-pink);
+  text-shadow: 0 0 12px var(--rose-pink-glow), 0 0 25px rgba(244, 63, 94, 0.25);
   font-size: clamp(2.2rem, 5.5vw, 4.2rem);
   font-weight: 400;
   letter-spacing: 0.05em;
@@ -210,19 +216,21 @@ html, body {
   gap: 10px;
 }
 
-/* Pulsing romantic neon light-blue glow for the name Rajkunwar on Finale */
+/* Pulsing romantic neon rose-blue glow for the name Rajkunwar on Finale */
 .scene-7 .romantic-name {
   animation: romanticGlow 2.8s ease-in-out infinite alternate;
 }
 
 @keyframes romanticGlow {
   0% {
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.45), 0 0 20px rgba(56, 189, 248, 0.25), 0 0 30px rgba(186, 230, 253, 0.2);
+    text-shadow: 0 0 12px rgba(244, 63, 94, 0.55), 0 0 22px rgba(139, 92, 246, 0.35), 0 0 32px rgba(56, 189, 248, 0.25);
     transform: scale(1);
+    color: var(--rose-pink);
   }
   100% {
-    text-shadow: 0 0 20px rgba(56, 189, 248, 0.85), 0 0 38px rgba(56, 189, 248, 0.6), 0 0 55px rgba(186, 230, 253, 0.55), 0 0 80px rgba(186, 230, 253, 0.35);
-    transform: scale(1.03);
+    text-shadow: 0 0 24px rgba(244, 63, 94, 0.95), 0 0 42px rgba(139, 92, 246, 0.7), 0 0 60px rgba(56, 189, 248, 0.65), 0 0 85px rgba(186, 230, 253, 0.45);
+    transform: scale(1.04);
+    color: #ffffff;
   }
 }
 
