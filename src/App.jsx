@@ -32,7 +32,7 @@ const chapters = [
     eyebrow: '01 / The Birthday Overture',
     title: 'Tonight, the world has one beautiful reason to glow.',
     copy:
-      'Happy Birthday Rajkunwar, My Sunshine. You are the warmth in every cold hour, the light in every shadow, and the soft melody that makes life feel like a beautiful song. Step into this space created just to celebrate the magic you carry.',
+      'Happy Birthday Rajkunwar. You are the warmth in every cold hour, the light in every shadow, and the soft melody that makes life feel like a beautiful song. Step into this space created just to celebrate the magic you carry.',
     cta: 'Begin the wish',
     backdrop: PHOTOS.birthday,
   },
@@ -532,7 +532,7 @@ function App() {
                   className="dedication-line"
                 >
                   <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(186,230,253,0.36)' }}>dedicated to</span>
-                  <span className="romantic-name">Rajkunwar, My Sunshine</span>
+                  <span className="romantic-name">Rajkunwar</span>
                 </motion.div>
               )}
             </div>
@@ -574,7 +574,7 @@ function App() {
                   </motion.figure>
                   <div className="birthday-plaque">
                     <Gift size={18} />
-                    <span>Happy Birthday Rajkunwar, My Sunshine</span>
+                    <span>Happy Birthday Rajkunwar, Sunshine of my life 🌎❤️</span>
                   </div>
                 </motion.div>
               )}
@@ -960,7 +960,7 @@ function App() {
                 <p className="signature" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <span>Today, I celebrate you fully: your heart, your courage, your beauty,</span>
                   <span>and the gentle magic only you carry.</span>
-                  <span className="romantic-name" style={{ fontSize: '2.5rem', marginTop: '14px', alignSelf: 'flex-start' }}>Rajkunwar, My Sunshine</span>
+                  <span className="romantic-name" style={{ fontSize: '2.5rem', marginTop: '14px', alignSelf: 'flex-start' }}>Happy Birthday Rajkunwar, Sunshine of my life 🌎❤️</span>
                 </p>
               </div>
             </motion.div>
