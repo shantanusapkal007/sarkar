@@ -32,7 +32,7 @@ const chapters = [
     eyebrow: '01 / The Birthday Overture',
     title: 'Tonight, the world has one beautiful reason to glow.',
     copy:
-      'This is not just a wish. It is a small gallery of every light you bring: softness, laughter, courage, and the kind of presence that makes ordinary days feel chosen.',
+      'Happy Birthday Rajkunwar, My Sunshine. You are the warmth in every cold hour, the light in every shadow, and the soft melody that makes life feel like a beautiful song. Step into this space created just to celebrate the magic you carry.',
     cta: 'Begin the wish',
     backdrop: PHOTOS.birthday,
   },
@@ -57,11 +57,19 @@ const chapters = [
     title: 'Every angle reveals another beautiful facet of you.',
     copy:
       'Drag your finger across the crystal prism. Each rotation reflects a different side of your story, showing how one soul can hold an entire universe of lights.',
-    cta: 'Ascend to the wish',
+    cta: 'Enter the Sunshine Reel',
     backdrop: PHOTOS.tender,
   },
   {
-    eyebrow: '05 / The Birthday Star',
+    eyebrow: '05 / The Sunshine Reel',
+    title: 'Every motion, a beautiful story in time.',
+    copy:
+      'Happy Birthday Rajkunwar, My Sunshine. A reel of laughter, light, and the quiet joy of being together. Play the video below to watch a fragment of sunshine preserved forever.',
+    cta: 'Ascend to the wish',
+    backdrop: PHOTOS.sunlight,
+  },
+  {
+    eyebrow: '06 / The Birthday Star',
     title: 'Make one wish. I will make the rest into a prayer.',
     copy:
       'May this year protect your heart, multiply your joy, surprise you gently, and return to you every ounce of love you give so freely.',
@@ -115,7 +123,7 @@ const memories = [
   },
 ];
 
-// Idea 3: Masked GSAP Staggered Word Reveal Component
+// Masked GSAP Staggered Word Reveal Component
 const MaskedText = ({ text, className = '' }) => {
   const containerRef = useRef(null);
 
@@ -199,7 +207,7 @@ function App() {
   const startX = useRef(0);
   const currentRotationY = useRef(0);
 
-  // Idea 1: Smooth 3D Card Hover / Touch Coordinates Tilt depth binding
+  // Smooth 3D Card Hover / Touch Coordinates Tilt depth binding
   const handleCardTilt = (event, element) => {
     const rect = element.getBoundingClientRect();
     const clientX = event.touches?.[0]?.clientX ?? event.clientX;
@@ -230,7 +238,7 @@ function App() {
   };
 
   const chapter = chapters[Math.max(0, scene - 1)] || chapters[chapters.length - 1];
-  const backdrop = scene < 6 ? chapter.backdrop : PHOTOS.birthday;
+  const backdrop = scene < 7 ? chapter.backdrop : PHOTOS.birthday;
 
   // Open website at the top when scene transitions
   useEffect(() => {
@@ -249,7 +257,7 @@ function App() {
   };
 
   const advance = () => {
-    setScene((current) => Math.min(current + 1, 6));
+    setScene((current) => Math.min(current + 1, 7));
   };
 
   const handleArtworkMove = (event) => {
@@ -339,7 +347,7 @@ function App() {
     audioEngine.playClimaxSwell();
 
     setTimeout(() => {
-      setScene(6); // Final Section is now Scene 6
+      setScene(7); // Final Section is now Scene 7
       setTriggerExplosion(false);
       audioEngine.fadeToSilence();
     }, 5400);
@@ -370,8 +378,8 @@ function App() {
       <div className="aurora aurora-two" />
       <div className="paper-grain" />
 
-      {/* Synchronize Scene 6 climax inside Canvas particle overlays */}
-      <DreamCanvas scene={triggerExplosion ? 6 : (scene === 6 ? 7 : scene)} triggerExplosion={triggerExplosion} userTouch={userTouch} />
+      {/* Synchronize Scene 7 climax inside Canvas particle overlays */}
+      <DreamCanvas scene={triggerExplosion ? 7 : (scene === 7 ? 8 : scene)} triggerExplosion={triggerExplosion} userTouch={userTouch} />
       <MuteToggle audioActive={audioActive} />
 
       <AnimatePresence>
@@ -404,7 +412,7 @@ function App() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        {scene < 6 && (
+        {scene < 7 && (
           <motion.section
             key={scene}
             className="stage"
@@ -445,8 +453,8 @@ function App() {
                   transition={{ delay: 0.65 }}
                   className="dedication-line"
                 >
-                  <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(255,255,255,0.36)' }}>dedicated to</span>
-                  <span className="romantic-name">Rajkunwar</span>
+                  <span style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: 'rgba(186,230,253,0.36)' }}>dedicated to</span>
+                  <span className="romantic-name">Rajkunwar, My Sunshine</span>
                 </motion.div>
               )}
             </div>
@@ -488,7 +496,7 @@ function App() {
                   </motion.figure>
                   <div className="birthday-plaque">
                     <Gift size={18} />
-                    <span>Happy Birthday, Rajkunwar</span>
+                    <span>Happy Birthday Rajkunwar, My Sunshine</span>
                   </div>
                 </motion.div>
               )}
@@ -541,14 +549,13 @@ function App() {
                       animate={{ scale: [0, 1.15, 0.9], opacity: [0, 1, 0], rotate: 45 }}
                       transition={{ duration: 2.2, delay: mark.delay, ease: 'easeOut' }}
                     >
-                      {/* Detailed beautiful blooming rose SVG inside touch bloom marks */}
-                      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="var(--rose-gold)" strokeWidth="1.2">
-                        <circle cx="12" cy="12" r="3.5" fill="rgba(251, 113, 133, 0.18)" />
-                        <path d="M12 2C9.5 2 9.5 7 12 7C14.5 7 14.5 2 12 2Z" fill="rgba(252, 211, 77, 0.08)" />
-                        <path d="M12 22C9.5 22 9.5 17 12 17C14.5 17 14.5 22 12 22Z" fill="rgba(252, 211, 77, 0.08)" />
-                        <path d="M2 12C2 9.5 7 9.5 7 12C7 14.5 2 14.5 2 12Z" fill="rgba(252, 211, 77, 0.08)" />
-                        <path d="M22 12C22 9.5 17 9.5 17 12C17 14.5 22 14.5 22 12Z" fill="rgba(252, 211, 77, 0.08)" />
-                        <circle cx="12" cy="12" r="1.2" fill="var(--champagne-gold)" />
+                      <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="var(--sky-blue)" strokeWidth="1.2">
+                        <circle cx="12" cy="12" r="3.5" fill="rgba(56, 189, 248, 0.18)" />
+                        <path d="M12 2C9.5 2 9.5 7 12 7C14.5 7 14.5 2 12 2Z" fill="rgba(186, 230, 253, 0.08)" />
+                        <path d="M12 22C9.5 22 9.5 17 12 17C14.5 17 14.5 22 12 22Z" fill="rgba(186, 230, 253, 0.08)" />
+                        <path d="M2 12C2 9.5 7 9.5 7 12C7 14.5 2 14.5 2 12Z" fill="rgba(186, 230, 253, 0.08)" />
+                        <path d="M22 12C22 9.5 17 9.5 17 12C17 14.5 22 14.5 22 12Z" fill="rgba(186, 230, 253, 0.08)" />
+                        <circle cx="12" cy="12" r="1.2" fill="var(--ice-blue)" />
                       </svg>
                     </motion.span>
                   ))}
@@ -578,7 +585,6 @@ function App() {
                 </div>
               )}
 
-              {/* NEW SECTION Chapter 04 / The 3D Photo Prism with Urdu/Hindi Love Couplets */}
               {scene === 4 && (
                 <div 
                   className="prism-section"
@@ -626,7 +632,7 @@ function App() {
                         {renderImage(PHOTOS.tender, 'Prism Face 1')}
                       </div>
                       <div className="prism-poetry-container" style={{ padding: '6px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.8rem', color: 'var(--champagne-gold)', fontStyle: 'italic', lineHeight: '1.3' }}>
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '0.8rem', color: 'var(--sky-blue)', fontStyle: 'italic', lineHeight: '1.3' }}>
                           "वो हुस्न ही क्या जो बस नज़र तक रहे,<br/>तुम तो वो ख्याल हो जो रूह तक उतर जाता है।"
                         </span>
                         <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.45rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase', lineHeight: '1.25' }}>
@@ -650,7 +656,7 @@ function App() {
                         {renderImage(PHOTOS.close, 'Prism Face 2')}
                       </div>
                       <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--sky-blue)', fontStyle: 'italic' }}>
                           "तुम मुस्कुराओ, दिन बेहतर लगता है।"
                         </span>
                         <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
@@ -674,7 +680,7 @@ function App() {
                         {renderImage(PHOTOS.birthday, 'Prism Face 3')}
                       </div>
                       <div className="prism-poetry-container" style={{ padding: '8px 2px 2px', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--champagne-gold)', fontStyle: 'italic' }}>
+                        <span className="urdu-couplet" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', color: 'var(--sky-blue)', fontStyle: 'italic' }}>
                           "Today, the stars celebrate you."
                         </span>
                         <span className="roman-couplet" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.55rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
@@ -686,7 +692,25 @@ function App() {
                 </div>
               )}
 
+              {/* NEW SECTION Chapter 05 / The Sunshine Reel Video Player */}
               {scene === 5 && (
+                <div className="video-panel glass-panel">
+                  <div className="video-wrapper">
+                    <video
+                      src="/video_2026-06-03_13-17-19.mp4"
+                      controls
+                      playsInline
+                      className="sunshine-video"
+                    />
+                  </div>
+                  <div className="video-overlay-text">
+                    <span>My Sunshine</span>
+                    <span>Play & Celebrate ☀️</span>
+                  </div>
+                </div>
+              )}
+
+              {scene === 6 && (
                 <motion.div
                   className="wish-orb"
                   animate={{
@@ -718,7 +742,7 @@ function App() {
           </motion.section>
         )}
 
-        {scene === 6 && (
+        {scene === 7 && (
           <motion.section
             key="finale"
             className="finale"
@@ -749,7 +773,7 @@ function App() {
               <div className="final-copy">
                 <p className="eyebrow">For Rajkunwar</p>
                 <h1 style={{ display: 'flex', flexDirection: 'column', gap: '8px', lineHeight: '1.1' }}>
-                  <span style={{ fontSize: '0.55em', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#7a3145', fontFamily: 'var(--font-sans)', fontWeight: '700' }}>Happy Birthday</span>
+                  <span style={{ fontSize: '0.55em', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--sky-blue)', fontFamily: 'var(--font-sans)', fontWeight: '700' }}>Happy Birthday</span>
                   <span className="romantic-name" style={{ fontSize: '1.25em', alignSelf: 'flex-start' }}>Rajkunwar</span>
                 </h1>
                 <p>
@@ -765,7 +789,7 @@ function App() {
                 <p className="signature" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <span>Today, I celebrate you fully: your heart, your courage, your beauty,</span>
                   <span>and the gentle magic only you carry.</span>
-                  <span className="romantic-name" style={{ fontSize: '2.5rem', marginTop: '14px', alignSelf: 'flex-start' }}>Rajkunwar</span>
+                  <span className="romantic-name" style={{ fontSize: '2.5rem', marginTop: '14px', alignSelf: 'flex-start' }}>Rajkunwar, My Sunshine</span>
                 </p>
               </div>
             </motion.div>
@@ -774,8 +798,7 @@ function App() {
       </AnimatePresence>
 
       {/* PERSISTENT GLASSMORPHIC BOTTOM NAVIGATION BAR */}
-      {/* Kept at absolute bottom bar, providing modern native iOS flow */}
-      {scene < 6 && (
+      {scene < 7 && (
         <div className="bottom-navigation-bar">
           <div className="scene-meter">
             {chapters.map((item, index) => (
@@ -796,7 +819,7 @@ function App() {
               {chapter.cta}
               <ArrowRight size={18} />
             </motion.button>
-          ) : scene === 5 ? (
+          ) : scene === 6 ? (
             <motion.button
               className="primary-action"
               onClick={revealFinale}

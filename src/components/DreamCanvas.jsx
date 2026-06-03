@@ -19,7 +19,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
-  // Handle Scene 5 Climax star explosion
+  // Handle Scene 6 Climax star explosion
   useEffect(() => {
     if (triggerExplosion) {
       spawnExplosion();
@@ -33,7 +33,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     const currentScene = sceneRef.current;
     
     if (currentScene === 3) {
-      // Spawn gorgeous 3D rose petals on tap
+      // Spawn gorgeous 3D blue petals on tap
       for (let i = 0; i < 8; i++) {
         petalsRef.current.push(create3DPetal(x, y, true));
       }
@@ -45,7 +45,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     }
   }, [userTouch]);
 
-  // Track global cursor coordinates directly for fluid, zero-latency golden thread bending
+  // Track global cursor coordinates directly for fluid, zero-latency light-blue thread bending
   useEffect(() => {
     const handleMove = (e) => {
       const clientX = e.touches?.[0]?.clientX ?? e.clientX;
@@ -88,8 +88,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     particlesRef.current = [];
     shootingStarsRef.current = [];
     
-    if (currentScene === 1 || currentScene === 2) {
-      // Starry sky background stars with Z-depth (Idea 4 Bokeh)
+    if (currentScene === 1 || currentScene === 2 || currentScene === 5) {
+      // Starry sky background stars with Z-depth
       for (let i = 0; i < 55; i++) {
         const depth = Math.random(); // 0 (far, sharp) to 1 (close, bokeh)
         particlesRef.current.push({
@@ -99,17 +99,17 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           z: depth,
           alpha: Math.random() * 0.75 + 0.1,
           speed: (Math.random() * 0.012 + 0.004) * (depth * 0.5 + 0.5),
-          color: Math.random() > 0.45 ? '#ffffff' : '#fcd34d' // white or champagne gold
+          color: Math.random() > 0.45 ? '#ffffff' : '#38bdf8' // white or sky blue
         });
       }
     } else if (currentScene === 3) {
-      // Initialize floating 3D rose petals
+      // Initialize floating 3D blue/cyan petals
       petalsRef.current = [];
       for (let i = 0; i < 14; i++) {
         petalsRef.current.push(create3DPetal(Math.random() * w, Math.random() * h, false));
       }
-    } else if (currentScene === 5) {
-      // Warm room lights (large soft drifting bokeh circles - Idea 4)
+    } else if (currentScene === 6) {
+      // Light blue & indigo room lights (large soft drifting bokeh circles)
       for (let i = 0; i < 10; i++) {
         const depth = Math.random(); // 0 to 1
         particlesRef.current.push({
@@ -122,11 +122,11 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           speedX: (Math.random() - 0.5) * 0.12,
           pulse: Math.random() * 0.012 + 0.003,
           pulseDir: 1,
-          color: Math.random() > 0.5 ? 'rgba(252, 211, 77, 0.18)' : 'rgba(251, 113, 133, 0.14)' // gold or rose-gold
+          color: Math.random() > 0.5 ? 'rgba(56, 189, 248, 0.18)' : 'rgba(99, 102, 241, 0.14)' // sky blue or indigo
         });
       }
-    } else if (currentScene === 6 || currentScene === 7) {
-      // Slow champagne dust
+    } else if (currentScene === 7 || currentScene === 8) {
+      // Slow sky blue dust
       for (let i = 0; i < 22; i++) {
         const depth = Math.random();
         particlesRef.current.push({
@@ -136,13 +136,13 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           z: depth,
           alpha: Math.random() * 0.65 + 0.15,
           speedY: -(Math.random() * 0.18 + 0.04),
-          color: 'rgba(252, 211, 77, 0.32)'
+          color: 'rgba(56, 189, 248, 0.32)'
         });
       }
     }
   }
 
-  // Math-based 3D Rose Petal Generator
+  // Math-based 3D Petal Generator (styled in shades of light blue)
   function create3DPetal(x, y, isTouch = false) {
     return {
       x,
@@ -163,11 +163,12 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
       yawSpeed: Math.random() * 0.014 - 0.007,
       
       isTouch,
-      // Luxury color tones (burgundy, soft champagne, rose pink)
-      color: Math.random() > 0.6 ? '#fecdd3' : (Math.random() > 0.5 ? '#fda4af' : '#ffe4e6')
+      // Sky blue / Ice blue tones
+      color: Math.random() > 0.6 ? '#bae6fd' : (Math.random() > 0.5 ? '#7dd3fc' : '#e0f2fe')
     };
   }
 
+  // Cyan river ripple
   function createRipple(x, y) {
     return {
       x,
@@ -181,6 +182,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     };
   }
 
+  // Cyan & Sky Blue Starburst Explosion
   function spawnExplosion() {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -191,7 +193,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
     const centerX = w / 2;
     const centerY = h / 2;
     
-    // Spawn 230 golden/rose stardust explosion elements
+    // Spawn 230 sky-blue/cyan stardust explosion elements
     for (let i = 0; i < 230; i++) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 4.6 + 1.2;
@@ -208,7 +210,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         angle: angle,
         radius: 0,
         orbitSpeed: (Math.random() * 0.007 + 0.003) * (Math.random() > 0.5 ? 1 : -1),
-        color: Math.random() > 0.4 ? `rgba(252, 211, 77, ${Math.random() * 0.7 + 0.3})` : `rgba(251, 113, 133, ${Math.random() * 0.6 + 0.3})`
+        color: Math.random() > 0.4 ? `rgba(56, 189, 248, ${Math.random() * 0.7 + 0.3})` : `rgba(186, 230, 253, ${Math.random() * 0.6 + 0.3})`
       });
     }
   }
@@ -247,8 +249,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
       m.x += (m.targetX - m.x) * 0.08;
       m.y += (m.targetY - m.y) * 0.08;
 
-      // Periodically spawn shooting stars in Scene 1 & 2
-      if ((currentScene === 1 || currentScene === 2) && Math.random() < 0.003 && shootingStarsRef.current.length < 2) {
+      // Periodically spawn shooting stars in Scene 1, 2, & 5
+      if ((currentScene === 1 || currentScene === 2 || currentScene === 5) && Math.random() < 0.003 && shootingStarsRef.current.length < 2) {
         shootingStarsRef.current.push({
           x: Math.random() * w * 0.5 + w * 0.5,
           y: 0,
@@ -260,9 +262,9 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
       }
 
       // ----------------------------------------------------
-      // Idea 5: Shimmering Golden Ribbon splines in background
+      // Shimmering Light Blue Wave Splines
       // ----------------------------------------------------
-      if (currentScene <= 5) {
+      if (currentScene <= 6) {
         timeRef.current += 0.012;
         const time = timeRef.current;
         
@@ -272,8 +274,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.beginPath();
           ctx.lineWidth = 1.2 - layer * 0.3;
           ctx.strokeStyle = layer === 0 
-            ? 'rgba(252, 211, 77, 0.15)'  // Golden
-            : (layer === 1 ? 'rgba(251, 113, 133, 0.11)' : 'rgba(255, 255, 255, 0.07)'); // Rose / Pearl
+            ? 'rgba(56, 189, 248, 0.15)'  // Sky Blue
+            : (layer === 1 ? 'rgba(6, 182, 212, 0.11)' : 'rgba(255, 255, 255, 0.07)'); // Cyan / Pearl
           
           const wavePhase = time * (0.8 + layer * 0.18) + layer * Math.PI * 0.45;
           ctx.moveTo(0, h * 0.55 + Math.sin(wavePhase) * 24);
@@ -301,8 +303,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         ctx.restore();
       }
 
-      // Render Twinkling Starfield with Depth of Field Bokeh (Scene 1 & 2)
-      if (currentScene === 1 || currentScene === 2) {
+      // Render Twinkling Starfield with Depth of Field Bokeh (Scene 1, 2, & 5)
+      if (currentScene === 1 || currentScene === 2 || currentScene === 5) {
         particlesRef.current.forEach(p => {
           p.alpha += p.speed;
           if (p.alpha > 0.88 || p.alpha < 0.12) {
@@ -313,7 +315,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.globalAlpha = Math.max(0.08, p.alpha);
           
           if (p.z > 0.76) {
-            // Cinematic Bokeh Star: Draw blurred radial gradient (Idea 4)
+            // Cinematic Bokeh Star: Draw blurred radial gradient
             const bokehRadius = p.size * (p.z * 5.2 + 2);
             const radialGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, bokehRadius);
             radialGrad.addColorStop(0, p.color);
@@ -335,8 +337,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.beginPath();
           const grad = ctx.createLinearGradient(s.x, s.y, s.x + s.length, s.y - s.length * 0.7);
           grad.addColorStop(0, '#ffffff');
-          grad.addColorStop(0.3, 'rgba(252, 211, 77, 0.42)');
-          grad.addColorStop(1, 'rgba(252, 211, 77, 0)');
+          grad.addColorStop(0.3, 'rgba(56, 189, 248, 0.42)');
+          grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
           ctx.strokeStyle = grad;
           ctx.lineWidth = 1.2;
           ctx.moveTo(s.x, s.y);
@@ -351,7 +353,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         });
       }
 
-      // Render Floating 3D Rose Petals (Scene 3 Garden)
+      // Render Floating 3D Blue Petals (Scene 3 Garden)
       if (currentScene === 3) {
         petalsRef.current = petalsRef.current.filter(p => {
           ctx.save();
@@ -374,8 +376,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.fillStyle = p.color;
           ctx.fill();
           
-          // Subtle darker pink fold outline for 3D realism
-          ctx.strokeStyle = 'rgba(225, 29, 72, 0.16)';
+          // Subtle darker cyan fold outline for 3D realism
+          ctx.strokeStyle = 'rgba(6, 182, 212, 0.16)';
           ctx.lineWidth = 0.55;
           ctx.stroke();
 
@@ -401,15 +403,15 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         });
       }
 
-      // Render River Ripples (Scene 4 River)
+      // Render Cyan River Ripples (Scene 4 River)
       if (currentScene === 4) {
-        // Draw underlying warm flowing water current bed
+        // Draw underlying flowing water current bed
         ctx.beginPath();
         const riverGrad = ctx.createLinearGradient(0, h * 0.5, w, h * 0.54);
         riverGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        riverGrad.addColorStop(0.35, 'rgba(252, 211, 77, 0.035)');
-        riverGrad.addColorStop(0.5, 'rgba(251, 113, 133, 0.045)'); // delicate rose-gold sweep
-        riverGrad.addColorStop(0.65, 'rgba(252, 211, 77, 0.035)');
+        riverGrad.addColorStop(0.35, 'rgba(56, 189, 248, 0.035)');
+        riverGrad.addColorStop(0.5, 'rgba(6, 182, 212, 0.045)'); // cyan/teal sweep
+        riverGrad.addColorStop(0.65, 'rgba(56, 189, 248, 0.035)');
         riverGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
         ctx.fillStyle = riverGrad;
         ctx.fillRect(0, h * 0.36, w, h * 0.28);
@@ -417,9 +419,9 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         ripplesRef.current = ripplesRef.current.filter(r => {
           ctx.beginPath();
           ctx.arc(r.x, r.y, r.size * (2.2 - r.life), 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(252, 211, 77, ${r.life * 0.38})`;
+          ctx.fillStyle = `rgba(56, 189, 248, ${r.life * 0.38})`;
           ctx.shadowBlur = 9;
-          ctx.shadowColor = '#fcd34d';
+          ctx.shadowColor = '#38bdf8';
           ctx.fill();
           ctx.shadowBlur = 0; // reset
 
@@ -431,8 +433,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         });
       }
 
-      // Render Cinematic Depth of Field Bokeh Room Lights (Scene 5)
-      if (currentScene === 5) {
+      // Render Cinematic Depth of Field Bokeh Room Lights (Scene 6)
+      if (currentScene === 6) {
         particlesRef.current.forEach(p => {
           p.alpha += p.pulse * p.pulseDir;
           if (p.alpha > 0.36 || p.alpha < 0.06) {
@@ -443,7 +445,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.beginPath();
           ctx.globalAlpha = Math.max(0.04, p.alpha);
           
-          // Draw cinematic warm light bokeh using layered smooth gradients
+          // Draw bokeh using layered smooth gradients
           const radial = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
           radial.addColorStop(0, p.color);
           radial.addColorStop(0.42, p.color.replace('0.18', '0.06').replace('0.14', '0.04'));
@@ -464,8 +466,8 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
         });
       }
 
-      // Render Climax Golden Storm stardust explosion (Scene 6)
-      if (currentScene === 6 || currentScene === 7) {
+      // Render Climax Stardust Explosion (Scene 7 & 8)
+      if (currentScene === 7 || currentScene === 8) {
         particlesRef.current = particlesRef.current.filter(p => {
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -473,7 +475,7 @@ export const DreamCanvas = ({ scene, triggerExplosion, userTouch }) => {
           ctx.globalAlpha = p.alpha;
           
           ctx.shadowBlur = 7;
-          ctx.shadowColor = '#fcd34d';
+          ctx.shadowColor = '#38bdf8';
           ctx.fill();
           ctx.shadowBlur = 0; // reset
 

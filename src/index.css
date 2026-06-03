@@ -1,25 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@200;300;400;500;600&family=Pinyon+Script&display=swap');
 
 :root {
-  /* Velvety Burgundy and Champagne Gold Color System */
-  --bg-burgundy: hsl(340, 55%, 5%);
-  --bg-burgundy-gradient: radial-gradient(circle at center, hsl(335, 50%, 8%) 0%, hsl(345, 55%, 3%) 100%);
-  --champagne-gold: hsl(38, 70%, 75%);
-  --champagne-gold-glow: rgba(252, 211, 77, 0.45);
-  --rose-gold: hsl(10, 65%, 75%);
-  --rose-gold-glow: rgba(251, 113, 133, 0.35);
-  --soft-ivory: hsl(40, 40%, 96%);
+  /* Premium Midnight Blue & Ice/Sky Blue Glass Color System */
+  --bg-dark-blue: hsl(222, 47%, 4%);
+  --bg-blue-gradient: radial-gradient(circle at center, hsl(217, 45%, 8%) 0%, hsl(222, 50%, 3%) 100%);
+  
+  --sky-blue: hsl(199, 89%, 68%); /* Beautiful bright light blue */
+  --sky-blue-glow: rgba(56, 189, 248, 0.45);
+  --ice-blue: hsl(190, 80%, 75%); /* Lighter frosty blue */
+  --ice-blue-glow: rgba(186, 230, 253, 0.35);
+  --soft-ivory: hsl(210, 40%, 98%);
   
   /* Fonts */
   --font-serif: 'Cormorant Garamond', serif;
   --font-sans: 'Inter', sans-serif;
   --font-romantic: 'Pinyon Script', cursive;
   
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.025);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-glow: 0 10px 35px 0 rgba(0, 0, 0, 0.5);
-  --glass-blur: blur(15px);
+  /* Glassmorphism with Light Blue Frost Effect */
+  --glass-bg: rgba(15, 23, 42, 0.3); /* dark slate blue translucent */
+  --glass-blue-frost: rgba(186, 230, 253, 0.08); /* light blue frosted glass blend */
+  --glass-border: rgba(186, 230, 253, 0.16); /* light blue semi-transparent borders */
+  --glass-glow: 0 16px 45px 0 rgba(3, 7, 18, 0.5), 0 0 20px 0 rgba(56, 189, 248, 0.1);
+  --glass-blur: blur(20px);
 }
 
 * {
@@ -35,7 +37,7 @@ html, body {
   width: 100%;
   min-height: 100%;
   overflow-x: hidden;
-  background-color: var(--bg-burgundy);
+  background-color: var(--bg-dark-blue);
   font-family: var(--font-sans);
   color: var(--soft-ivory);
   font-size: 16px;
@@ -53,7 +55,7 @@ html, body {
 }
 
 ::selection {
-  background: var(--rose-gold-glow);
+  background: var(--ice-blue-glow);
   color: var(--soft-ivory);
 }
 
@@ -63,17 +65,17 @@ html, body {
 
 /* Luxury visual glows */
 .glow-text {
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.25), 0 0 25px var(--champagne-gold-glow);
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.25), 0 0 25px var(--sky-blue-glow);
 }
 
 .gold-glow-text {
-  color: var(--champagne-gold);
-  text-shadow: 0 0 10px var(--champagne-gold-glow);
+  color: var(--sky-blue);
+  text-shadow: 0 0 10px var(--sky-blue-glow);
 }
 
 .rose-glow-text {
-  color: var(--rose-gold);
-  text-shadow: 0 0 10px var(--rose-gold-glow);
+  color: var(--ice-blue);
+  text-shadow: 0 0 10px var(--ice-blue-glow);
 }
 
 /* Fullscreen Canvas overlay */
@@ -89,13 +91,13 @@ html, body {
 
 /* Glassmorphic Panel overlays */
 .glass-panel {
-  background: var(--glass-bg);
+  background: linear-gradient(135deg, var(--glass-blue-frost), rgba(56, 189, 248, 0.03));
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-glow);
-  border-radius: 8px;
-  transition: border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Ambient Radial Blur Blends in background */
@@ -110,13 +112,13 @@ html, body {
 }
 
 .ambient-gold {
-  background: var(--champagne-gold);
+  background: var(--sky-blue);
   width: 280px;
   height: 280px;
 }
 
 .ambient-lavender {
-  background: var(--rose-gold);
+  background: var(--ice-blue);
   width: 320px;
   height: 320px;
 }
@@ -147,7 +149,7 @@ html, body {
   font-size: 0.8rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--rose-gold);
+  color: var(--ice-blue);
   text-align: center;
 }
 
@@ -192,8 +194,8 @@ html, body {
 
 .romantic-name {
   font-family: var(--font-romantic);
-  color: var(--champagne-gold);
-  text-shadow: 0 0 10px var(--champagne-gold-glow), 0 0 25px rgba(252, 211, 77, 0.25);
+  color: var(--sky-blue);
+  text-shadow: 0 0 10px var(--sky-blue-glow), 0 0 25px rgba(56, 189, 248, 0.25);
   font-size: clamp(2.2rem, 5.5vw, 4.2rem);
   font-weight: 400;
   letter-spacing: 0.05em;
@@ -208,23 +210,23 @@ html, body {
   gap: 10px;
 }
 
-/* Pulsing romantic neon gold-glow for the name Rajkunwar on Finale */
-.scene-6 .romantic-name {
+/* Pulsing romantic neon light-blue glow for the name Rajkunwar on Finale */
+.scene-7 .romantic-name {
   animation: romanticGlow 2.8s ease-in-out infinite alternate;
 }
 
 @keyframes romanticGlow {
   0% {
-    text-shadow: 0 0 10px rgba(252, 211, 77, 0.45), 0 0 20px rgba(252, 211, 77, 0.25), 0 0 30px rgba(251, 113, 133, 0.2);
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.45), 0 0 20px rgba(56, 189, 248, 0.25), 0 0 30px rgba(186, 230, 253, 0.2);
     transform: scale(1);
   }
   100% {
-    text-shadow: 0 0 20px rgba(252, 211, 77, 0.85), 0 0 38px rgba(252, 211, 77, 0.6), 0 0 55px rgba(251, 113, 133, 0.55), 0 0 80px rgba(251, 113, 133, 0.35);
+    text-shadow: 0 0 20px rgba(56, 189, 248, 0.85), 0 0 38px rgba(56, 189, 248, 0.6), 0 0 55px rgba(186, 230, 253, 0.55), 0 0 80px rgba(186, 230, 253, 0.35);
     transform: scale(1.03);
   }
 }
 
 .contain-img {
   object-fit: contain !important;
-  background: rgba(29, 4, 12, 0.45);
+  background: rgba(15, 23, 42, 0.45);
 }
